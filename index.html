@@ -73,7 +73,13 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--g900
 .concept-card p{font-size:13.5px;color:var(--g700);line-height:1.7;}
 .span2{grid-column:span 2;}
 
-/* RULES */
+/* CLICK GUIDE */
+.click-guide{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px;padding:14px 18px;background:linear-gradient(135deg,#eff6ff,#f5f3ff);border-radius:12px;border:1px solid #c7d2fe;}
+.cg-step{font-size:13px;color:#6b7280;padding:6px 13px;border-radius:8px;transition:.2s;font-weight:600;}
+.cg-step.active{background:var(--primary);color:#fff;box-shadow:0 3px 10px rgba(79,70,229,.25);}
+.cg-arrow{color:#c4b5fd;font-size:16px;font-weight:700;}
+.sel-info{padding:10px 16px;background:#fef9c3;border:1.5px solid #fbbf24;border-radius:10px;font-size:13px;color:#92400e;margin-bottom:12px;}
+
 .rules-card{background:linear-gradient(135deg,#eff6ff,#f0fdf4);border-radius:18px;padding:28px 32px;margin-bottom:36px;border:1px solid #bfdbfe;}
 .rules-card h3{font-size:17px;font-weight:800;color:#1e40af;margin-bottom:14px;}
 .rules-card p{font-size:13.5px;color:var(--g700);margin-bottom:14px;line-height:1.75;}
@@ -274,16 +280,18 @@ footer strong{color:rgba(255,255,255,.9);}
       </select>
       <button class="btn btn-dng" onclick="initHanoi()">🔄 초기화</button>
     </div>
-    <div class="move-btns">
-      <button class="mbtn" onclick="doMove('p1','p2')">move(p1, p2)</button>
-      <button class="mbtn" onclick="doMove('p1','p3')">move(p1, p3)</button>
-      <button class="mbtn" onclick="doMove('p2','p1')">move(p2, p1)</button>
-      <button class="mbtn" onclick="doMove('p2','p3')">move(p2, p3)</button>
-      <button class="mbtn" onclick="doMove('p3','p1')">move(p3, p1)</button>
-      <button class="mbtn" onclick="doMove('p3','p2')">move(p3, p2)</button>
+    <div class="click-guide">
+      <span class="cg-step active" id="cg1">① 옮길 원반이 있는 <strong>기둥 클릭</strong></span>
+      <span class="cg-arrow">→</span>
+      <span class="cg-step" id="cg2">② 옮길 <strong>목적지 기둥 클릭</strong></span>
+      <span class="cg-arrow">→</span>
+      <span class="cg-step" id="cg3">③ 이동 기록에 자동 저장!</span>
+    </div>
+    <div class="sel-info" id="selInfo" style="display:none">
+      📌 선택된 기둥: <strong id="selPegName"></strong> &nbsp;— 다른 기둥을 클릭해 이동하거나, 같은 기둥을 클릭하면 취소
     </div>
     <div class="canvas-wrap">
-      <canvas id="hanoiCanvas" width="480" height="195"></canvas>
+      <canvas id="hanoiCanvas" width="480" height="195" style="cursor:pointer;" onclick="handleCanvasClick(event)"></canvas>
     </div>
     <div class="peg-labels">
       <div class="peg-lbl">p1</div>
@@ -393,37 +401,91 @@ footer strong{color:rgba(255,255,255,.9);}
 })();
 
 // ============================================================
-// HANOI GAME
+// HANOI GAME — click-to-move
 // ============================================================
 let hPegs = {p1:[],p2:[],p3:[]};
 let hMoves = [];
 let hN = 3;
+let hSelected = null; // currently selected source peg
+
+const PEG_KEYS = ['p1','p2','p3'];
 
 function initHanoi() {
   hN = parseInt(document.getElementById('diskCount').value);
   hPegs = {p1:[],p2:[],p3:[]};
   for(let i=hN;i>=1;i--) hPegs.p1.push(i);
   hMoves = [];
+  hSelected = null;
   document.getElementById('histTags').innerHTML = '<span class="hempty">아직 이동 기록이 없습니다.</span>';
   document.getElementById('errMsg').style.display='none';
   document.getElementById('okMsg').style.display='none';
+  document.getElementById('selInfo').style.display='none';
+  setGuideStep(1);
   renderHanoi();
 }
 
-function doMove(from, to) {
-  const fp = hPegs[from], tp = hPegs[to];
+function setGuideStep(step){
+  ['cg1','cg2','cg3'].forEach((id,i)=>{
+    document.getElementById(id).classList.toggle('active', i+1===step);
+  });
+}
+
+function handleCanvasClick(e){
+  const cv=document.getElementById('hanoiCanvas');
+  const rect=cv.getBoundingClientRect();
+  const scaleX=cv.width/rect.width;
+  const x=(e.clientX-rect.left)*scaleX;
+  // peg zones: p1=0~160, p2=160~320, p3=320~480
+  const pegZones=[{key:'p1',min:0,max:160},{key:'p2',min:160,max:320},{key:'p3',min:320,max:480}];
+  const clicked=pegZones.find(z=>x>=z.min&&x<z.max);
+  if(!clicked) return;
+
   document.getElementById('errMsg').style.display='none';
   document.getElementById('okMsg').style.display='none';
-  if(fp.length===0){showMsg('errMsg',`❌ ${from}에 원반이 없습니다!`);return;}
-  const top = fp[fp.length-1];
-  if(tp.length>0 && tp[tp.length-1]<top){
-    showMsg('errMsg',`❌ 잘못된 이동! 큰 원반(${top})을 작은 원반(${tp[tp.length-1]}) 위에 올릴 수 없습니다.`);return;
+
+  if(hSelected===null){
+    // Select source
+    if(hPegs[clicked.key].length===0){
+      showMsg('errMsg',`❌ ${clicked.key}에 원반이 없습니다!`);
+      return;
+    }
+    hSelected=clicked.key;
+    document.getElementById('selInfo').style.display='block';
+    document.getElementById('selPegName').textContent=clicked.key;
+    setGuideStep(2);
+  } else {
+    if(clicked.key===hSelected){
+      // Deselect
+      hSelected=null;
+      document.getElementById('selInfo').style.display='none';
+      setGuideStep(1);
+    } else {
+      // Attempt move
+      const fp=hPegs[hSelected], tp=hPegs[clicked.key];
+      const top=fp[fp.length-1];
+      if(tp.length>0 && tp[tp.length-1]<top){
+        showMsg('errMsg',`❌ 잘못된 이동! 큰 원반(${top})을 작은 원반(${tp[tp.length-1]}) 위에 올릴 수 없습니다.`);
+        // keep selection so user can try another target
+        return;
+      }
+      const from=hSelected;
+      tp.push(fp.pop());
+      hMoves.push(`move(${from}, ${clicked.key})`);
+      hSelected=null;
+      document.getElementById('selInfo').style.display='none';
+      setGuideStep(3);
+      setTimeout(()=>setGuideStep(1),800);
+      renderHanoi();
+      updateHist();
+      // Check win — all on p3
+      if(hPegs.p3.length===hN){
+        showMsg('okMsg',`🎉 성공! ${hMoves.length}번의 이동으로 모든 원반을 p3으로 옮겼습니다!`);
+        setGuideStep(3);
+      }
+      return;
+    }
   }
-  tp.push(fp.pop());
-  hMoves.push(`move(${from}, ${to})`);
   renderHanoi();
-  updateHist();
-  if(hPegs.p3.length===hN) showMsg('okMsg',`🎉 성공! ${hMoves.length}번의 이동으로 모든 원반을 p3으로 옮겼습니다!`);
 }
 
 function showMsg(id,msg){
@@ -436,6 +498,7 @@ function updateHist(){
   const el=document.getElementById('histTags');
   if(hMoves.length===0){el.innerHTML='<span class="hempty">아직 이동 기록이 없습니다.</span>';return;}
   el.innerHTML=hMoves.map((m,i)=>`<span class="htag"><span class="hnum">${i+1}</span>${m}</span>`).join('');
+  el.scrollLeft=el.scrollWidth;
 }
 
 function renderHanoi(){
@@ -447,45 +510,73 @@ function renderHanoi(){
 
   const pegXs=[90,240,390], baseY=162, pegH=128, diskH=16;
   const diskColors=['#06b6d4','#3b82f6','#8b5cf6','#ec4899','#f97316'];
+  const pegKeys=['p1','p2','p3'];
 
   function dw(size){
     if(hN===1)return 80;
     return 38+(size-1)*(94/(hN-1));
   }
 
+  // highlight zone for selected peg
+  if(hSelected!==null){
+    const pi=pegKeys.indexOf(hSelected);
+    ctx.fillStyle='rgba(250,204,21,.10)';
+    ctx.beginPath(); ctx.roundRect(pi*160+4,0,152,H-2,10); ctx.fill();
+    ctx.strokeStyle='rgba(250,204,21,.45)';
+    ctx.lineWidth=2;
+    ctx.beginPath(); ctx.roundRect(pi*160+4,0,152,H-2,10); ctx.stroke();
+  }
+
+  // hover-zone hints (faint clickable areas)
+  pegKeys.forEach((pk,pi)=>{
+    if(hSelected===null && hPegs[pk].length>0){
+      ctx.fillStyle='rgba(255,255,255,.03)';
+      ctx.beginPath(); ctx.roundRect(pi*160+4,0,152,H-2,10); ctx.fill();
+    }
+  });
+
   // base platform
   ctx.fillStyle='#92400e';
   ctx.beginPath(); ctx.roundRect(14,baseY+2,452,10,5); ctx.fill();
 
   // pegs
-  pegXs.forEach(px=>{
-    ctx.fillStyle='#b45309';
+  pegXs.forEach((px,pi)=>{
+    const isSel=hSelected===pegKeys[pi];
+    ctx.fillStyle=isSel?'#fbbf24':'#b45309';
     ctx.beginPath(); ctx.roundRect(px-4,baseY-pegH,8,pegH+2,3); ctx.fill();
   });
 
   // disks
-  ['p1','p2','p3'].forEach((peg,pi)=>{
+  pegKeys.forEach((peg,pi)=>{
     const px=pegXs[pi];
+    const isSrcPeg=hSelected===peg;
     hPegs[peg].forEach((size,si)=>{
+      const isTop=si===hPegs[peg].length-1;
       const w=dw(size), dy=baseY-(si+1)*diskH-si*2, dx=px-w/2;
+      // lift top disk of selected peg
+      const lift=(isSrcPeg&&isTop)?-7:0;
       ctx.fillStyle=diskColors[size-1]||'#888';
-      ctx.beginPath(); ctx.roundRect(dx,dy,w,diskH,5); ctx.fill();
+      ctx.beginPath(); ctx.roundRect(dx,dy+lift,w,diskH,5); ctx.fill();
+      if(isSrcPeg&&isTop){
+        ctx.strokeStyle='#fbbf24'; ctx.lineWidth=2;
+        ctx.beginPath(); ctx.roundRect(dx,dy+lift,w,diskH,5); ctx.stroke();
+      }
       ctx.fillStyle='rgba(255,255,255,.22)';
-      ctx.beginPath(); ctx.roundRect(dx+4,dy+3,w-8,4,3); ctx.fill();
+      ctx.beginPath(); ctx.roundRect(dx+4,dy+lift+3,w-8,4,3); ctx.fill();
       ctx.fillStyle='#fff';
       ctx.font=`bold 11px Noto Sans KR,sans-serif`;
       ctx.textAlign='center'; ctx.textBaseline='middle';
-      ctx.fillText(size,px,dy+diskH/2);
+      ctx.fillText(size,px,dy+lift+diskH/2);
     });
   });
 
   // peg labels
-  const labels=['p1','p2','p3'];
   pegXs.forEach((px,i)=>{
-    ctx.fillStyle='rgba(255,255,255,.45)';
-    ctx.font='bold 12px Noto Sans KR,sans-serif';
+    const isSel=hSelected===pegKeys[i];
+    ctx.fillStyle=isSel?'rgba(251,191,36,.9)':'rgba(255,255,255,.45)';
+    ctx.font=`bold 12px Noto Sans KR,sans-serif`;
     ctx.textAlign='center'; ctx.textBaseline='top';
-    ctx.fillText(labels[i],px,baseY+16);
+    ctx.fillText(pegKeys[i],px,baseY+16);
   });
 }
 
