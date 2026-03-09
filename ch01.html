@@ -419,17 +419,24 @@ footer strong{color:rgba(255,255,255,.9);}
           따라서 <strong>T(n) = 2×T(n−1) + 1</strong></p>
         </div>
       </div>
-      <div class="why-card">
-        <div class="why-icon">🔢</div>
-        <div>
-          <strong>점화식 풀기</strong>
-          <p>T(1) = 1 (원반 1개는 1번만 이동)<br>
-          T(n) = 2T(n−1) + 1<br>
-          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= 2(2T(n−2)+1) + 1<br>
-          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= 4T(n−2) + 3<br>
-          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= …<br>
-          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= <strong>2<sup>n</sup> − 1</strong></p>
+      <div class="why-card" style="flex-direction:column;gap:0;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+          <div class="why-icon">🔢</div>
+          <strong>점화식 전개 시뮬레이션</strong>
         </div>
+        <!-- n 선택 -->
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap;">
+          <span style="font-size:13px;font-weight:700;color:#374151;">n =</span>
+          <div id="recNBtns" style="display:flex;gap:6px;flex-wrap:wrap;"></div>
+        </div>
+        <!-- step 전개 영역 -->
+        <div id="recSteps" style="font-family:'Courier New',monospace;font-size:13px;line-height:1.0;background:#1e1b4b;border-radius:12px;padding:16px 18px;min-height:80px;overflow:hidden;"></div>
+        <!-- 컨트롤 -->
+        <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;">
+          <button id="recNextBtn" onclick="recNext()" style="padding:7px 16px;background:var(--primary);color:#fff;border:none;border-radius:8px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;transition:.2s;">다음 단계 →</button>
+          <button onclick="recReset()" style="padding:7px 14px;background:#e5e7eb;color:#374151;border:none;border-radius:8px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;">🔄 처음부터</button>
+        </div>
+        <div id="recHint" style="margin-top:10px;font-size:12.5px;color:#6b7280;line-height:1.6;"></div>
       </div>
     </div>
 
@@ -2211,6 +2218,181 @@ renderTree();
 initMaze();
 mzE[0].init();
 mzE[1].init();
+
+// ── 점화식 전개 시뮬레이션 ──
+let recN=4, recStep=0, recSymbolic=false;
+
+// Symbolic T(n) expansion lines
+function recBuildSymbolicLines(){
+  return [
+    {
+      expr:`T(n) = 2·T(n-1) + 1`,
+      highlight:`T(n-1)`,
+      hint:`T(n-1)에 점화식 T(k) = 2·T(k−1) + 1 을 대입합니다.`
+    },
+    {
+      expr:`     = 2(2·T(n-2)+1) + 1`,
+      highlight:`T(n-2)`,
+      hint:`전개하면 2²·T(n-2) + 2 + 1 이 됩니다. T(n-2)에 다시 대입합니다.`
+    },
+    {
+      expr:`     = 2²·T(n-2) + 2 + 1`,
+      highlight:`T(n-2)`,
+      hint:`T(n-2)에 점화식을 대입합니다.`
+    },
+    {
+      expr:`     = 2²(2·T(n-3)+1) + 2 + 1`,
+      highlight:`T(n-3)`,
+      hint:`전개하면 2³·T(n-3) + 2² + 2 + 1 이 됩니다.`
+    },
+    {
+      expr:`     = 2³·T(n-3) + 2² + 2 + 1`,
+      highlight:`T(n-3)`,
+      hint:`패턴이 보이시나요? k번 대입하면 2ᵏ·T(n-k) + 2ᵏ⁻¹+⋯+2+1 형태가 됩니다.`
+    },
+    {
+      expr:`     = ⋯`,
+      highlight:null,
+      hint:`이 과정을 k = n-1 번 반복합니다.`
+    },
+    {
+      expr:`     = 2ⁿ⁻¹·T(n-(n-1)) + 2ⁿ⁻²+⋯+2+1`,
+      highlight:`T(1)`,
+      hint:`k = n-1 이면 T(n-(n-1)) = T(1) = 1 (기저 조건) 을 대입합니다.`
+    },
+    {
+      expr:`     = 2ⁿ⁻¹·1 + (2ⁿ⁻¹ − 1)`,
+      highlight:`2ⁿ⁻¹`,
+      hint:`등비수열 합: 2ⁿ⁻²+⋯+2+1 = 2ⁿ⁻¹ − 1`
+    },
+    {
+      expr:`     = 2ⁿ − 1  ✓`,
+      highlight:`2ⁿ − 1`,
+      hint:`2ⁿ⁻¹ + 2ⁿ⁻¹ − 1 = 2·2ⁿ⁻¹ − 1 = 2ⁿ − 1\n따라서 T(n) = 2ⁿ − 1`
+    },
+  ];
+}
+
+function recBuildLines(n){
+  const lines=[];
+  lines.push({
+    expr:`T(${n}) = 2·T(${n-1}) + 1`,
+    highlight:`T(${n-1})`,
+    hint:`T(${n-1})에 점화식 T(k) = 2·T(k−1) + 1 을 대입합니다.`
+  });
+  for(let k=1;k<=n-2;k++){
+    const pow=k+1;
+    const remaining=n-pow;
+    const SUP='⁰¹²³⁴⁵⁶⁷⁸⁹';
+    const powStr=pow<=9?'2'+SUP[pow]:`2^${pow}`;
+    let sumParts=[];
+    for(let p=pow-1;p>=0;p--) sumParts.push(p===0?'1':p===1?'2':`2${p<=9?SUP[p]:`^${p}`}`);
+    if(remaining===1){
+      lines.push({expr:`     = ${powStr}·T(1) + ${sumParts.join('+')}`,highlight:`T(1)`,hint:`T(1) = 1 (기저 조건: 원반 1개는 이동 1번) 을 대입합니다.`});
+    } else {
+      lines.push({expr:`     = ${powStr}·T(${remaining}) + ${sumParts.join('+')}`,highlight:`T(${remaining})`,hint:`T(${remaining})에 점화식을 다시 대입합니다.`});
+    }
+  }
+  const fp=n-1;
+  const SUP='⁰¹²³⁴⁵⁶⁷⁸⁹';
+  const fpStr=fp<=9?'2'+SUP[fp]:`2^${fp}`;
+  let sp2=[];
+  for(let p=fp-1;p>=0;p--) sp2.push(p===0?'1':p===1?'2':`2${p<=9?SUP[p]:`^${p}`}`);
+  lines.push({expr:`     = ${fpStr}·1 + ${sp2.join('+')}`,highlight:fpStr,hint:`T(1) = 1을 대입하면 ${fpStr} + (${sp2.join('+')}) 가 됩니다.`});
+  const nStr=n<=9?'2'+SUP[n]:`2^${n}`;
+  lines.push({expr:`     = ${nStr} − 1  ✓`,highlight:`${nStr} − 1`,hint:`등비수열 합: 2^(n−1) + ⋯ + 2 + 1 = 2^n − 1\n따라서 T(${n}) = 2^${n} − 1 = ${Math.pow(2,n)-1}`});
+  return lines;
+}
+
+function recEsc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+function recColorLine(text,highlight,isResult,isDim){
+  const COL={def:'#c4b5fd',hl:'#fde68a',dim:'#6b7280',res:'#6ee7b7'};
+  if(isDim) return `<span style="color:${COL.dim}">${recEsc(text)}</span>`;
+  if(isResult) return `<span style="color:${COL.res};font-weight:bold">${recEsc(text)}</span>`;
+  if(!highlight) return `<span style="color:${COL.def}">${recEsc(text)}</span>`;
+  const idx=text.indexOf(highlight);
+  if(idx<0) return `<span style="color:${COL.def}">${recEsc(text)}</span>`;
+  const b=text.slice(0,idx),m=text.slice(idx,idx+highlight.length),a=text.slice(idx+highlight.length);
+  return `<span style="color:${COL.def}">${recEsc(b)}</span><span style="color:${COL.hl};font-weight:bold;background:rgba(251,191,36,.15);border-radius:3px;padding:0 2px">${recEsc(m)}</span><span style="color:${COL.def}">${recEsc(a)}</span>`;
+}
+
+function recRenderSteps(){
+  const lines=recSymbolic ? recBuildSymbolicLines() : recBuildLines(recN);
+  const box=document.getElementById('recSteps');
+  if(!box) return;
+  let html=`<div style="color:#6b7280;font-size:11px;margin-bottom:8px;">T(1) = 1</div>`;
+  for(let i=0;i<recStep&&i<lines.length;i++){
+    const isLast=(i===lines.length-1), isDim=(i<recStep-1);
+    html+=`<div style="line-height:1.8;">${recColorLine(lines[i].expr,isDim?null:lines[i].highlight,isLast,isDim)}</div>`;
+  }
+  box.innerHTML=html;
+  box.scrollTop=box.scrollHeight;
+  const hintEl=document.getElementById('recHint');
+  const btn=document.getElementById('recNextBtn');
+  if(!hintEl||!btn) return;
+  if(recStep===0){
+    hintEl.textContent='▶ "다음 단계"를 눌러 점화식 전개를 시작하세요.';
+    btn.disabled=false; btn.textContent='다음 단계 →';
+  } else {
+    const cur=lines[recStep-1];
+    hintEl.innerHTML=`<span style="color:#4f46e5;font-weight:700;">💡 ${cur.hint.replace(/\n/g,'<br>')}</span>`;
+    btn.disabled=(recStep>=lines.length);
+    btn.textContent=btn.disabled?'완료 ✓':'다음 단계 →';
+  }
+}
+
+function recNext(){
+  const lines=recSymbolic ? recBuildSymbolicLines() : recBuildLines(recN);
+  if(recStep<lines.length){recStep++;recRenderSteps();}
+}
+function recReset(){
+  recStep=0;
+  const btn=document.getElementById('recNextBtn');
+  if(btn){btn.disabled=false;btn.textContent='다음 단계 →';}
+  recRenderSteps();
+}
+function recSetN(v){
+  if(v==='n'){
+    recSymbolic=true;
+  } else {
+    recSymbolic=false;
+    recN=v;
+  }
+  recStep=0;
+  document.querySelectorAll('#recNBtns button').forEach(b=>{
+    const bv=b.dataset.val;
+    const active= v==='n' ? bv==='n' : parseInt(bv)===v;
+    b.style.background=active?'var(--primary)':'#fff';
+    b.style.color=active?'#fff':'#374151';
+    b.style.borderColor=active?'var(--primary)':'#d1d5db';
+  });
+  const btn=document.getElementById('recNextBtn');
+  if(btn){btn.disabled=false;btn.textContent='다음 단계 →';}
+  recRenderSteps();
+}
+
+// init buttons and first render
+(function recInit(){
+  function tryInit(){
+    const wrap=document.getElementById('recNBtns');
+    if(!wrap){setTimeout(tryInit,100);return;}
+    [2,3,4,5,'n'].forEach(v=>{
+      const b=document.createElement('button');
+      b.textContent= v==='n' ? 'T(n)' : v;
+      b.dataset.val=String(v);
+      const active= v===recN;
+      b.style.cssText=`padding:5px 14px;border:2px solid ${active?'var(--primary)':'#d1d5db'};border-radius:8px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;background:${active?'var(--primary)':'#fff'};color:${active?'#fff':'#374151'};transition:.15s;`;
+      b.onclick=()=>recSetN(v);
+      wrap.appendChild(b);
+    });
+    recRenderSteps();
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',tryInit);
+  else tryInit();
+})();
+
 </script>
+
 </body>
 </html>
