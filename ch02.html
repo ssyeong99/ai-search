@@ -44,7 +44,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--g900
 .sec-sub{font-size:15px;color:var(--g600);max-width:640px;}
 
 /* ── IMAGE BLOCK ── */
-.img-block{border-radius:20px;overflow:hidden;border:1.5px solid var(--g200);box-shadow:0 6px 32px rgba(0,0,0,.08);margin-bottom:40px;}
+.img-block{border-radius:20px;overflow:hidden;border:1.5px solid var(--g200);box-shadow:0 6px 32px rgba(0,0,0,.08);margin-bottom:40px;max-width:66%;margin-left:auto;margin-right:auto;}
 .img-block img{width:100%;display:block;}
 .img-caption{padding:12px 20px;background:var(--g50);font-size:12.5px;color:var(--g600);border-top:1px solid var(--g200);}
 
@@ -427,8 +427,8 @@ function toggleMethod(id){
       </div>
 
       <!-- 방법 1 -->
-      <div class="imethod-item" onclick="toggleIMethod('im1')">
-        <div class="imethod-btn" id="im1-btn">
+      <div class="imethod-item">
+        <div class="imethod-btn" id="im1-btn" onclick="toggleIMethod('im1')">
           <div style="display:flex;align-items:center;gap:12px;">
             <span class="imethod-num" style="background:linear-gradient(135deg,#065f46,#0d9488);">1</span>
             <span class="imethod-q">거리 기반 휴리스틱</span>
@@ -445,23 +445,23 @@ function toggleMethod(id){
             <div class="step-item"><span class="step-num">3</span>가장 짧은 직선 거리를 가진 경로 선택</div>
             <div class="step-item"><span class="step-num">4</span>목표에 도달할 때까지 반복</div>
           </div>
-          <!-- 시뮬레이션 1 -->
+          <!-- 퀴즈 1 -->
           <div class="sim-box">
-            <div class="sim-title">🗺️ 시뮬레이션 — 거리 기반 휴리스틱</div>
-            <div class="sim-desc">각 노드의 <span class="sim-tag dist">직선 거리(h)</span>를 기반으로 경로를 선택합니다. 노드를 클릭해 직접 탐색해보세요!</div>
+            <div class="sim-title">🧩 퀴즈 — 거리 기반 휴리스틱</div>
+            <div class="sim-desc">현재 위치에서 <span class="sim-tag dist">직선 거리(h)가 가장 낮은</span> 다음 노드를 클릭하세요!</div>
             <canvas id="simCanvas1" width="600" height="280" style="width:100%;border-radius:10px;cursor:pointer;background:#f8fafc;display:block;"></canvas>
-            <div style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap;">
-              <button class="sim-btn sim-btn-green" onclick="runSim(1,'dist')">▶ 자동 탐색 실행</button>
-              <button class="sim-btn sim-btn-gray" onclick="resetSim(1)">🔄 초기화</button>
+            <div class="quiz-feedback" id="qFeedback1"></div>
+            <div style="display:flex;gap:10px;margin-top:10px;flex-wrap:wrap;">
+              <button class="sim-btn sim-btn-gray" onclick="event.stopPropagation();resetQuiz(1)">🔄 다시 풀기</button>
             </div>
-            <div class="sim-log" id="simLog1">탐색을 시작하려면 버튼을 누르거나 노드를 클릭하세요.</div>
+            <div class="sim-log" id="simLog1">🏠 <strong>집</strong>에서 출발! 이동할 수 있는 노드 중 h값이 가장 낮은 곳을 클릭하세요.</div>
           </div>
         </div>
       </div>
 
       <!-- 방법 2 -->
-      <div class="imethod-item" onclick="toggleIMethod('im2')" style="margin-top:12px;">
-        <div class="imethod-btn" id="im2-btn">
+      <div class="imethod-item" style="margin-top:12px;">
+        <div class="imethod-btn" id="im2-btn" onclick="toggleIMethod('im2')">
           <div style="display:flex;align-items:center;gap:12px;">
             <span class="imethod-num" style="background:linear-gradient(135deg,#1d4ed8,#7c3aed);">2</span>
             <span class="imethod-q">시간 기반 휴리스틱</span>
@@ -478,16 +478,16 @@ function toggleMethod(id){
             <div class="step-item" style="border-left-color:#1d4ed8;"><span class="step-num" style="background:#1d4ed8;">3</span>가장 짧은 예상 소요 시간을 가진 경로를 선택</div>
             <div class="step-item" style="border-left-color:#1d4ed8;"><span class="step-num" style="background:#1d4ed8;">4</span>목표에 도달할 때까지 반복</div>
           </div>
-          <!-- 시뮬레이션 2 -->
+          <!-- 퀴즈 2 -->
           <div class="sim-box" style="border-color:#c7d2fe;">
-            <div class="sim-title" style="color:#1d4ed8;">🕐 시뮬레이션 — 시간 기반 휴리스틱</div>
-            <div class="sim-desc">각 노드의 <span class="sim-tag time">예상 시간(t)</span>을 기반으로 경로를 선택합니다. 같은 지도지만 다른 경로가 선택됩니다!</div>
+            <div class="sim-title" style="color:#1d4ed8;">🧩 퀴즈 — 시간 기반 휴리스틱</div>
+            <div class="sim-desc">현재 위치에서 <span class="sim-tag time">예상 시간(t)이 가장 낮은</span> 다음 노드를 클릭하세요!</div>
             <canvas id="simCanvas2" width="600" height="280" style="width:100%;border-radius:10px;cursor:pointer;background:#f8fafc;display:block;"></canvas>
-            <div style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap;">
-              <button class="sim-btn sim-btn-blue" onclick="runSim(2,'time')">▶ 자동 탐색 실행</button>
-              <button class="sim-btn sim-btn-gray" onclick="resetSim(2)">🔄 초기화</button>
+            <div class="quiz-feedback" id="qFeedback2"></div>
+            <div style="display:flex;gap:10px;margin-top:10px;flex-wrap:wrap;">
+              <button class="sim-btn sim-btn-gray" onclick="event.stopPropagation();resetQuiz(2)">🔄 다시 풀기</button>
             </div>
-            <div class="sim-log" id="simLog2">탐색을 시작하려면 버튼을 누르거나 노드를 클릭하세요.</div>
+            <div class="sim-log" id="simLog2">🏠 <strong>집</strong>에서 출발! 이동할 수 있는 노드 중 t값이 가장 낮은 곳을 클릭하세요.</div>
           </div>
         </div>
       </div>
@@ -556,6 +556,10 @@ function toggleMethod(id){
 .sim-btn-blue:hover{background:#1e3a8a;}
 .sim-btn-gray{background:#e5e7eb;color:#374151;}
 .sim-btn-gray:hover{background:#d1d5db;}
+.quiz-feedback{min-height:38px;margin-top:10px;padding:8px 14px;border-radius:10px;font-size:13.5px;font-weight:700;display:none;line-height:1.5;}
+.qf-correct{background:#dcfce7;color:#166534;border:1.5px solid #86efac;display:flex!important;align-items:center;gap:8px;}
+.qf-wrong{background:#fee2e2;color:#991b1b;border:1.5px solid #fca5a5;display:flex!important;align-items:center;gap:8px;}
+.qf-done{background:linear-gradient(135deg,#f0fdf4,#eff6ff);color:#1e3a8a;border:1.5px solid #6ee7b7;display:flex!important;align-items:center;gap:8px;font-size:13px;}
 .sim-log{margin-top:10px;padding:10px 14px;background:#fff;border-radius:8px;font-size:12.5px;color:#374151;border:1px solid #e5e7eb;min-height:36px;line-height:1.6;}
 
 .ex-real-card{border-radius:16px;padding:22px;color:#fff;}
@@ -565,11 +569,253 @@ function toggleMethod(id){
 </style>
 
 <script>
-// ── Informed modal open/close ──
+// ── Graph ──
+const NODES=[
+  {id:0,label:'집',           x:.05,y:.50,dH:100,tH:30,icon:'🏠'},
+  {id:1,label:'A 사거리',     x:.22,y:.20,dH:82, tH:20,icon:'🔀'},
+  {id:2,label:'B 공원',       x:.22,y:.78,dH:78, tH:26,icon:'🌳'},
+  {id:3,label:'C 버스정류장', x:.44,y:.15,dH:58, tH:14,icon:'🚌'},
+  {id:4,label:'D 편의점',     x:.44,y:.50,dH:50, tH:18,icon:'🏪'},
+  {id:5,label:'E 신호등',     x:.44,y:.82,dH:55, tH:22,icon:'🚦'},
+  {id:6,label:'F 횡단보도',   x:.65,y:.25,dH:32, tH:8, icon:'🚶'},
+  {id:7,label:'G 지름길',     x:.65,y:.65,dH:28, tH:16,icon:'⬛'},
+  {id:8,label:'학교',         x:.88,y:.50,dH:0,  tH:0, icon:'🏫'},
+];
+const EDGES=[
+  [0,1,25,8],[0,2,28,7],
+  [1,3,22,6],[1,4,24,9],
+  [2,4,26,7],[2,5,22,8],
+  [3,6,20,5],[4,6,22,10],[4,7,24,8],
+  [5,7,22,12],
+  [6,8,30,9],[7,8,28,11],
+];
+
+// quiz state per canvas
+let QS={};
+function makeQS(){return{visited:[0],path:[0],current:0,done:false,flash:null,animTimer:null,animStep:0};}
+
+function getCV(n){return document.getElementById('simCanvas'+n);}
+function getCtx(n){return getCV(n).getContext('2d');}
+function n2px(node,cv){return{x:node.x*(cv.width-20)+10, y:node.y*(cv.height-20)+10};}
+function mode(n){return n===1?'dist':'time';}
+function hVal(node,n){return n===1?node.dH:node.tH;}
+function hLabel(val,n){return n===1?`h=${val}km`:`t=${val}분`;}
+
+// Neighbors of current not yet visited
+function getNeighbors(cur, visited){
+  return EDGES.filter(([a,b])=>a===cur||b===cur)
+    .map(([a,b])=>a===cur?b:a)
+    .filter(nb=>!visited.includes(nb));
+}
+// Correct next node = neighbor with lowest heuristic
+function correctNext(cur, visited, n){
+  const nbs=getNeighbors(cur,visited);
+  if(!nbs.length) return null;
+  return nbs.reduce((best,nb)=>hVal(NODES[nb],n)<hVal(NODES[best],n)?nb:best, nbs[0]);
+}
+
+// ── Draw ──
+function draw(n){
+  const cv=getCV(n); const ctx=getCtx(n);
+  const W=cv.width, H=cv.height;
+  const st=QS[n]; if(!st) return;
+  const md=mode(n);
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle='#f8fafc'; ctx.fillRect(0,0,W,H);
+
+  const pathSet=new Set();
+  for(let i=1;i<st.path.length;i++) pathSet.add(`${st.path[i-1]}-${st.path[i]}`);
+
+  const selectables=st.done?[]:getNeighbors(st.current, st.visited);
+  const correct=st.done?null:correctNext(st.current, st.visited, n);
+
+  // Edges
+  EDGES.forEach(([a,b,d,t])=>{
+    const pa=n2px(NODES[a],cv), pb=n2px(NODES[b],cv);
+    const onPath=pathSet.has(`${a}-${b}`)||pathSet.has(`${b}-${a}`);
+    ctx.strokeStyle=onPath?(n===1?'#10b981':'#3b82f6'):'#d1d5db';
+    ctx.lineWidth=onPath?4:1.5; ctx.setLineDash(onPath?[]:[4,4]);
+    ctx.beginPath(); ctx.moveTo(pa.x,pa.y); ctx.lineTo(pb.x,pb.y); ctx.stroke();
+    ctx.setLineDash([]);
+    // edge cost badge
+    const mx=(pa.x+pb.x)/2, my=(pa.y+pb.y)/2;
+    const val=n===1?d+'km':t+'분';
+    ctx.save();
+    ctx.fillStyle=onPath?(n===1?'#dcfce7':'#dbeafe'):'#f1f5f9';
+    ctx.strokeStyle=onPath?(n===1?'#6ee7b7':'#93c5fd'):'#e2e8f0';
+    ctx.lineWidth=1; ctx.beginPath(); ctx.roundRect(mx-16,my-9,32,18,5); ctx.fill(); ctx.stroke();
+    ctx.fillStyle=onPath?(n===1?'#065f46':'#1e3a8a'):'#64748b';
+    ctx.font='bold 9px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText(val,mx,my); ctx.restore();
+  });
+
+  // Animate path line if done
+  if(st.done && st.animStep>0){
+    ctx.save();
+    ctx.strokeStyle=n===1?'#10b981':'#3b82f6'; ctx.lineWidth=5;
+    ctx.lineCap='round'; ctx.lineJoin='round'; ctx.globalAlpha=0.7;
+    ctx.beginPath();
+    for(let i=0;i<Math.min(st.animStep,st.path.length);i++){
+      const p=n2px(NODES[st.path[i]],cv);
+      i===0?ctx.moveTo(p.x,p.y):ctx.lineTo(p.x,p.y);
+    }
+    ctx.stroke(); ctx.restore();
+    // moving dot
+    if(st.animStep<st.path.length){
+      const p=n2px(NODES[st.path[st.animStep-1]],cv);
+      ctx.save();
+      ctx.fillStyle=n===1?'#10b981':'#3b82f6';
+      ctx.beginPath(); ctx.arc(p.x,p.y,9,0,Math.PI*2); ctx.fill();
+      ctx.restore();
+    }
+  }
+
+  // Nodes
+  NODES.forEach(node=>{
+    const p=n2px(node,cv);
+    const isVisited=st.visited.includes(node.id);
+    const isCurrent=st.current===node.id;
+    const isSelectable=selectables.includes(node.id);
+    const isFlashOK=st.flash&&st.flash.node===node.id&&st.flash.type==='ok';
+    const isFlashErr=st.flash&&st.flash.node===node.id&&st.flash.type==='err';
+
+    let fill='#fff', stroke='#d1d5db', sw=1.5;
+    if(node.id===0) {fill='#8b5cf6'; stroke='#7c3aed';}
+    else if(node.id===8) {fill='#f59e0b'; stroke='#d97706';}
+    else if(isFlashOK) {fill='#10b981'; stroke='#059669'; sw=3;}
+    else if(isFlashErr) {fill='#ef4444'; stroke='#dc2626'; sw=3;}
+    else if(isCurrent) {fill=n===1?'#10b981':'#3b82f6'; stroke=n===1?'#065f46':'#1d4ed8'; sw=3;}
+    else if(isVisited) {fill=n===1?'#a7f3d0':'#bfdbfe'; stroke='#94a3b8';}
+    else if(isSelectable) {fill='#fff'; stroke=n===1?'#10b981':'#3b82f6'; sw=2.5;}
+
+    // Pulse ring for selectables
+    if(isSelectable && !st.done){
+      ctx.save();
+      ctx.strokeStyle=n===1?'rgba(16,185,129,.35)':'rgba(59,130,246,.35)';
+      ctx.lineWidth=7; ctx.beginPath(); ctx.arc(p.x,p.y,30,0,Math.PI*2); ctx.stroke();
+      ctx.restore();
+    }
+
+    ctx.beginPath(); ctx.arc(p.x,p.y,22,0,Math.PI*2);
+    ctx.fillStyle=fill; ctx.fill();
+    ctx.strokeStyle=stroke; ctx.lineWidth=sw; ctx.stroke();
+
+    ctx.font='14px serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText(node.icon,p.x,p.y-3);
+    ctx.fillStyle='#1e293b'; ctx.font='bold 9px sans-serif'; ctx.textAlign='center';
+    ctx.fillText(node.label,p.x,p.y+29);
+
+    // h/t badge
+    const hv=hVal(node,n);
+    const bx=p.x+22, by=p.y-20;
+    ctx.save();
+    ctx.fillStyle=n===1?'#dcfce7':'#dbeafe';
+    ctx.strokeStyle=n===1?'#6ee7b7':'#93c5fd'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.roundRect(bx-14,by-8,28,16,4); ctx.fill(); ctx.stroke();
+    ctx.fillStyle=n===1?'#065f46':'#1e3a8a';
+    ctx.font='bold 9px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText(n===1?`h=${hv}`:`t=${hv}`,bx,by); ctx.restore();
+  });
+}
+
+// ── Quiz init / reset ──
+function initQuiz(n){
+  QS[n]=makeQS();
+  draw(n);
+  const fb=document.getElementById('qFeedback'+n);
+  fb.className='quiz-feedback'; fb.style.display='none'; fb.textContent='';
+  document.getElementById('simLog'+n).innerHTML=
+    '🏠 <strong>집</strong>에서 출발! 이동할 수 있는 <span style="font-weight:900;">'+
+    (n===1?'h(직선 거리)':'t(예상 시간)')+
+    ' 값이 가장 낮은</span> 노드를 클릭하세요.';
+}
+function resetQuiz(n){ clearTimeout(QS[n]&&QS[n].animTimer); initQuiz(n); }
+
+// ── Canvas click ──
+function handleQuizClick(n, e){
+  const cv=getCV(n); const st=QS[n];
+  if(!st||st.done) return;
+  const rect=cv.getBoundingClientRect();
+  const mx=(e.clientX-rect.left)*(cv.width/rect.width);
+  const my=(e.clientY-rect.top)*(cv.height/rect.height);
+
+  // Which selectable was clicked?
+  const selectables=getNeighbors(st.current, st.visited);
+  let clicked=null;
+  selectables.forEach(nb=>{
+    const p=n2px(NODES[nb],cv);
+    if(Math.hypot(mx-p.x,my-p.y)<26) clicked=nb;
+  });
+  if(clicked===null) return;
+
+  const correct=correctNext(st.current, st.visited, n);
+  const fb=document.getElementById('qFeedback'+n);
+  const log=document.getElementById('simLog'+n);
+
+  if(clicked===correct){
+    // Correct!
+    st.flash={node:clicked, type:'ok'};
+    draw(n);
+    setTimeout(()=>{
+      st.flash=null;
+      st.visited.push(clicked);
+      st.path.push(clicked);
+      st.current=clicked;
+      draw(n);
+
+      fb.className='quiz-feedback qf-correct';
+      fb.innerHTML='✅ 정답! <strong>'+NODES[clicked].label+'</strong> — '+hLabel(hVal(NODES[clicked],n),n)+' 으로 가장 낮은 값입니다.';
+
+      if(clicked===8){
+        // Arrived!
+        st.done=true;
+        log.innerHTML='🎉 <strong>학교에 도착!</strong> 모든 선택이 정확했습니다!';
+        fb.className='quiz-feedback qf-done';
+        fb.innerHTML='🏁 탐색 완료! 최적 경로: <strong>'+st.path.map(i=>NODES[i].label).join(' → ')+'</strong>';
+        animatePath(n);
+      } else {
+        const nbs=getNeighbors(clicked, st.visited);
+        if(nbs.length===0){
+          log.innerHTML='⚠️ 이동 가능한 노드가 없습니다.';
+        } else {
+          const vals=nbs.map(nb=>NODES[nb].label+'('+hLabel(hVal(NODES[nb],n),n)+')').join(', ');
+          log.innerHTML='📍 <strong>'+NODES[clicked].label+'</strong>에 도착! 다음 선택지: '+vals;
+        }
+      }
+    }, 350);
+
+  } else {
+    // Wrong!
+    st.flash={node:clicked, type:'err'};
+    draw(n);
+    const nbs=getNeighbors(st.current, st.visited);
+    const vals=nbs.map(nb=>'<span style="font-weight:700;">'+NODES[nb].label+'</span> '+hLabel(hVal(NODES[nb],n),n)).join(', ');
+    fb.className='quiz-feedback qf-wrong';
+    fb.innerHTML='❌ 오답! 선택지 비교: '+vals+' — 가장 낮은 값을 찾아보세요!';
+    log.innerHTML='💡 다시 선택해보세요. 힌트: 각 노드의 '+( n===1?'h(직선거리)':'t(예상시간)')+' 값을 비교하세요.';
+    setTimeout(()=>{ st.flash=null; draw(n); }, 600);
+  }
+}
+
+// ── Path animation after completion ──
+function animatePath(n){
+  const st=QS[n];
+  st.animStep=0;
+  function tick(){
+    if(st.animStep<st.path.length){
+      st.animStep++;
+      draw(n);
+      st.animTimer=setTimeout(tick, 350);
+    }
+  }
+  setTimeout(tick, 300);
+}
+
+// ── Canvas event binding & modal init ──
 function openInformedModal(){
   document.getElementById('informedModal').style.display='block';
   document.body.style.overflow='hidden';
-  setTimeout(()=>{initSim(1);initSim(2);},100);
+  setTimeout(()=>{ initQuiz(1); initQuiz(2); },120);
 }
 function closeInformedModal(e){
   if(!e||e.target===document.getElementById('informedModal')){
@@ -585,157 +831,17 @@ function toggleIMethod(id){
   body.classList.toggle('show',!isOpen);
   arrow.classList.toggle('open',!isOpen);
   btn.classList.toggle('open',!isOpen);
-  if(!isOpen){setTimeout(()=>{initSim(id==='im1'?1:2);},50);}
-}
-
-// ── Graph definition ──
-// Nodes: id, label, x(0-1), y(0-1), distH(직선거리 to goal), timeH(예상시간 to goal)
-const NODES=[
-  {id:0,label:'집',     x:.05,y:.5, dH:100,tH:30, icon:'🏠'},
-  {id:1,label:'A 사거리',x:.22,y:.2, dH:82, tH:20, icon:'🔀'},
-  {id:2,label:'B 공원',  x:.22,y:.78,dH:78, tH:26, icon:'🌳'},
-  {id:3,label:'C 버스정류장',x:.44,y:.15,dH:58,tH:14,icon:'🚌'},
-  {id:4,label:'D 편의점', x:.44,y:.5, dH:50,tH:18, icon:'🏪'},
-  {id:5,label:'E 신호등', x:.44,y:.82,dH:55,tH:22, icon:'🚦'},
-  {id:6,label:'F 횡단보도',x:.65,y:.25,dH:32,tH:8, icon:'🚶'},
-  {id:7,label:'G 지름길', x:.65,y:.65,dH:28,tH:16, icon:'⬛'},
-  {id:8,label:'학교',    x:.88,y:.5, dH:0, tH:0,  icon:'🏫'},
-];
-// Edges: [from, to, dist, time(minutes)]
-const EDGES=[
-  [0,1,25,8],[0,2,28,7],
-  [1,3,22,6],[1,4,24,9],
-  [2,4,26,7],[2,5,22,8],
-  [3,6,20,5],[4,6,22,10],[4,7,24,8],
-  [5,7,22,12],
-  [6,8,30,9],[7,8,28,11],
-];
-
-// state per canvas: visited nodes, current path, step
-let simState={1:{visited:[],path:[],step:0,done:false},2:{visited:[],path:[],step:0,done:false}};
-
-function getCanvas(n){return document.getElementById('simCanvas'+n);}
-function getCtx(n){return getCanvas(n).getContext('2d');}
-function node2px(node,cv){return{x:node.x*(cv.width-20)+10, y:node.y*(cv.height-20)+10};}
-
-function initSim(n){
-  simState[n]={visited:[0],path:[0],current:0,done:false,autoTimer:null};
-  drawSim(n, n===1?'dist':'time');
-  document.getElementById('simLog'+n).textContent='탐색을 시작하려면 버튼을 누르거나 [▶ 자동 탐색 실행]을 클릭하세요.';
-}
-
-function resetSim(n){
-  clearTimeout(simState[n].autoTimer);
-  initSim(n);
-  drawSim(n, n===1?'dist':'time');
-}
-
-function drawSim(n, mode){
-  const cv=getCanvas(n);
-  const ctx=getCtx(n);
-  const W=cv.width, H=cv.height;
-  ctx.clearRect(0,0,W,H);
-  ctx.fillStyle='#f8fafc'; ctx.fillRect(0,0,W,H);
-
-  const st=simState[n];
-  const pathSet=new Set(st.path.map((_,i)=>i>0?`${st.path[i-1]}-${st.path[i]}`:null).filter(Boolean));
-
-  // Draw edges
-  EDGES.forEach(([a,b,d,t])=>{
-    const pa=node2px(NODES[a],cv), pb=node2px(NODES[b],cv);
-    const key1=`${a}-${b}`, key2=`${b}-${a}`;
-    const onPath=pathSet.has(key1)||pathSet.has(key2);
-    ctx.strokeStyle=onPath?(n===1?'#10b981':'#3b82f6'):'#d1d5db';
-    ctx.lineWidth=onPath?4:1.5;
-    ctx.setLineDash(onPath?[]:[4,4]);
-    ctx.beginPath(); ctx.moveTo(pa.x,pa.y); ctx.lineTo(pb.x,pb.y); ctx.stroke();
-    ctx.setLineDash([]);
-    // label
-    const mx=(pa.x+pb.x)/2, my=(pa.y+pb.y)/2;
-    const val=mode==='dist'?d+'km':t+'분';
-    ctx.save();
-    ctx.fillStyle='#fff'; ctx.strokeStyle='#e5e7eb'; ctx.lineWidth=1;
-    ctx.beginPath(); ctx.arc(mx,my,13,0,Math.PI*2); ctx.fill(); ctx.stroke();
-    ctx.fillStyle=onPath?(n===1?'#065f46':'#1e3a8a'):'#6b7280';
-    ctx.font=`bold 10px sans-serif`; ctx.textAlign='center'; ctx.textBaseline='middle';
-    ctx.fillText(val,mx,my); ctx.restore();
-  });
-
-  // Draw nodes
-  NODES.forEach(node=>{
-    const p=node2px(node,cv);
-    const isVisited=st.visited.includes(node.id);
-    const isCurrent=st.current===node.id;
-    const isGoal=node.id===8;
-    const isStart=node.id===0;
-
-    // circle
-    ctx.beginPath(); ctx.arc(p.x,p.y,22,0,Math.PI*2);
-    if(isCurrent) ctx.fillStyle=n===1?'#10b981':'#3b82f6';
-    else if(isGoal) ctx.fillStyle='#f59e0b';
-    else if(isStart) ctx.fillStyle='#8b5cf6';
-    else if(isVisited) ctx.fillStyle=n===1?'#a7f3d0':'#bfdbfe';
-    else ctx.fillStyle='#fff';
-    ctx.fill();
-    ctx.strokeStyle=isCurrent?(n===1?'#065f46':'#1d4ed8'):'#d1d5db';
-    ctx.lineWidth=isCurrent?3:1.5;
-    ctx.stroke();
-
-    // icon
-    ctx.font='14px serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
-    ctx.fillText(node.icon,p.x,p.y-3);
-    // label
-    ctx.fillStyle='#1e293b'; ctx.font='bold 9px Noto Sans KR,sans-serif';
-    ctx.fillText(node.label,p.x,p.y+28);
-
-    // heuristic value badge
-    const hval=mode==='dist'?`h=${node.dH}`:`t=${node.tH}`;
-    ctx.fillStyle=n===1?'#065f46':'#1e3a8a';
-    ctx.font='bold 9px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
-    const bx=p.x+22, by=p.y-20;
-    ctx.save();
-    ctx.fillStyle=n===1?'#dcfce7':'#dbeafe';
-    ctx.beginPath(); ctx.roundRect(bx-14,by-8,28,16,4); ctx.fill();
-    ctx.fillStyle=n===1?'#065f46':'#1d4ed8';
-    ctx.fillText(hval,bx,by); ctx.restore();
-  });
-}
-
-// Greedy best-first step using heuristic
-function simStep(n, mode){
-  const st=simState[n];
-  if(st.done) return;
-  const cur=st.current;
-  if(cur===8){st.done=true; drawSim(n,mode);
-    document.getElementById('simLog'+n).innerHTML='🎉 <strong>학교에 도착!</strong> 탐색 완료. 경로: '+st.path.map(i=>NODES[i].label).join(' → ');
-    return;}
-  // find unvisited neighbors, pick best heuristic
-  const nbrs=EDGES.filter(([a,b])=>(a===cur||b===cur))
-    .map(([a,b,d,t])=>({nb:a===cur?b:a, cost:mode==='dist'?d:t, h:mode==='dist'?NODES[a===cur?b:a].dH:NODES[a===cur?b:a].tH}))
-    .filter(x=>!st.visited.includes(x.nb));
-  if(nbrs.length===0){st.done=true;
-    document.getElementById('simLog'+n).innerHTML='⚠️ 더 이상 탐색할 경로가 없습니다.'; return;}
-  nbrs.sort((a,b)=>a.h-b.h);
-  const best=nbrs[0];
-  st.visited.push(best.nb);
-  st.path.push(best.nb);
-  st.current=best.nb;
-  drawSim(n,mode);
-  const hLabel=mode==='dist'?`직선거리 h=${best.h}km`:`예상시간 t=${best.h}분`;
-  document.getElementById('simLog'+n).innerHTML=`📍 <strong>${NODES[best.nb].label}</strong> 선택 (${hLabel} — 가장 낮은 값)`;
-  if(best.nb===8){st.done=true;
-    setTimeout(()=>{document.getElementById('simLog'+n).innerHTML='🎉 <strong>학교에 도착!</strong> 경로: '+st.path.map(i=>NODES[i].label).join(' → ');},400);}
-}
-
-function runSim(n, mode){
-  clearTimeout(simState[n].autoTimer);
-  function tick(){
-    if(simState[n].done) return;
-    simStep(n,mode);
-    if(!simState[n].done) simState[n].autoTimer=setTimeout(tick,900);
+  if(!isOpen){
+    const qn=id==='im1'?1:2;
+    setTimeout(()=>{ if(!QS[qn]) initQuiz(qn); draw(qn); },60);
   }
-  tick();
 }
+
+window.addEventListener('DOMContentLoaded',()=>{
+  getCV(1).addEventListener('click',e=>handleQuizClick(1,e));
+  getCV(2).addEventListener('click',e=>handleQuizClick(2,e));
+});
+
 </script>
 <footer>
   <strong>능동고등학교</strong> 인공지능 기초 &nbsp;|&nbsp; Chapter 02 · 지능적 탐색 &nbsp;|&nbsp; made by 정보 교사 송세영<br>
