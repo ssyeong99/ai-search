@@ -230,7 +230,8 @@ footer a:hover{color:#a5b4fc;}
       </a>
 
       <!-- 방법 선택 -->
-      <div style="font-size:14px;font-weight:800;color:#1e3a8a;margin-bottom:14px;">💡 어떤 방법을 사용할 수 있을까요? 클릭해서 확인해보세요!</div>
+      <div style="font-size:14px;font-weight:800;color:#1e3a8a;margin-bottom:6px;">💡 어떤 방법을 사용할 수 있을까요?</div>
+      <div style="font-size:13px;color:#6b7280;margin-bottom:16px;">목표: 마트 어딘가에 있는 <strong style="color:#1d4ed8;">우유 🥛</strong>를 찾아보세요!</div>
 
       <div style="display:flex;flex-direction:column;gap:12px;">
 
@@ -243,12 +244,14 @@ footer a:hover{color:#a5b4fc;}
             </div>
             <span class="method-arrow" id="m1-arrow">▼</span>
           </div>
-          <div class="method-body" id="m1-body">
-            <div class="method-icon">🚶</div>
-            <div>
-              <div class="method-name">너비 우선 / 깊이 우선 탐색 (BFS / DFS)</div>
-              <p>입구에서 출발하여 <strong>정해진 순서</strong>대로 마트의 모든 구역을 빠짐없이 탐색합니다. 목표 상품을 반드시 찾을 수 있지만, 상품이 출구 근처에 있어도 먼 곳부터 모두 뒤져야 할 수 있습니다. 이처럼 <strong>사전 정보 없이 규칙적인 순서</strong>로 탐색하는 것이 맹목적 탐색의 핵심입니다.</p>
+          <div class="method-body show-block" id="m1-body">
+            <div class="method-name" style="margin-bottom:6px;">🚶 너비 우선 / 깊이 우선 탐색 (BFS / DFS)</div>
+            <p style="font-size:13px;color:#374151;margin-bottom:14px;">입구에서 출발해 <strong>연결된 순서대로</strong> 탐색합니다. 이동할 수 있는 구역(초록 링)을 클릭해보세요 — <strong>순서를 벗어난 구역은 선택할 수 없어요!</strong></p>
+            <canvas id="martCanvas1" width="560" height="210" style="width:100%;border-radius:10px;display:block;cursor:pointer;"></canvas>
+            <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;">
+              <button class="mart-btn mart-btn-gray" onclick="event.stopPropagation();martReset(1)">🔄 초기화</button>
             </div>
+            <div class="mart-log" id="martLog1">▶ 입구에서 출발! 초록 링이 표시된 구역을 클릭하세요.</div>
           </div>
         </div>
 
@@ -261,12 +264,14 @@ footer a:hover{color:#a5b4fc;}
             </div>
             <span class="method-arrow" id="m2-arrow">▼</span>
           </div>
-          <div class="method-body" id="m2-body">
-            <div class="method-icon">🎲</div>
-            <div>
-              <div class="method-name">무작위 탐색 (Random Search)</div>
-              <p>사전 지식이나 규칙 없이 <strong>임의의 위치</strong>를 돌아다니며 상품을 찾습니다. 운이 좋으면 빨리 찾을 수 있지만, 같은 구역을 반복해서 방문하거나 영영 찾지 못할 수도 있습니다. <strong>효율성이 매우 낮아</strong> 실제 탐색 알고리즘에서는 잘 사용하지 않습니다.</p>
+          <div class="method-body show-block" id="m2-body">
+            <div class="method-name" style="margin-bottom:6px;">🎲 무작위 탐색 (Random Search)</div>
+            <p style="font-size:13px;color:#374151;margin-bottom:14px;">구역을 직접 <strong>클릭</strong>해서 탐색하세요. 어디를 눌러도 됩니다 — 같은 곳을 두 번 갈 수도 있어요!</p>
+            <canvas id="martCanvas2" width="560" height="210" style="width:100%;border-radius:10px;display:block;cursor:pointer;"></canvas>
+            <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;">
+              <button class="mart-btn mart-btn-gray" onclick="event.stopPropagation();martReset(2)">🔄 초기화</button>
             </div>
+            <div class="mart-log" id="martLog2">🖱️ 구역을 직접 클릭해서 탐색해보세요!</div>
           </div>
         </div>
 
@@ -279,12 +284,17 @@ footer a:hover{color:#a5b4fc;}
             </div>
             <span class="method-arrow" id="m3-arrow">▼</span>
           </div>
-          <div class="method-body" id="m3-body">
-            <div class="method-icon">🗂️</div>
-            <div>
-              <div class="method-name">구역 분할 탐색</div>
-              <p>마트를 여러 구역으로 나누고, 각 구역을 <strong>순서대로 하나씩</strong> 탐색하는 방법입니다. 비슷한 물건이 있을 것 같은 구역부터 찾아보지만, 여전히 <strong>사전 정보 없이 규칙적인 순서</strong>에 따라 모든 구역을 탐색합니다. 어느 구역에 상품이 있는지 확실히 알지 못하므로 결국 빠짐없이 탐색해야 하며, 이는 <strong>맹목적 탐색</strong>에 해당합니다.</p>
+          <div class="method-body show-block" id="m3-body">
+            <div class="method-name" style="margin-bottom:6px;">🗂️ 구역 분할 탐색</div>
+            <p style="font-size:13px;color:#374151;margin-bottom:14px;">마트를 <strong>식품 / 음료·유제품 / 기타</strong> 구역으로 나누고 구역 단위로 탐색합니다. 구역을 먼저 선택한 뒤 해당 구역의 칸을 클릭해보세요!</p>
+            <canvas id="martCanvas3" width="560" height="210" style="width:100%;border-radius:10px;display:block;cursor:pointer;"></canvas>
+            <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;" id="zone3Btns">
+              <button class="mart-btn" style="background:#f0fdf4;color:#065f46;border:2px solid #86efac;" onclick="event.stopPropagation();selectZone(1)">🥦 식품 구역 먼저</button>
+              <button class="mart-btn" style="background:#eff6ff;color:#1e3a8a;border:2px solid #93c5fd;" onclick="event.stopPropagation();selectZone(2)">🥛 음료·유제품 구역 먼저</button>
+              <button class="mart-btn" style="background:#faf5ff;color:#6d28d9;border:2px solid #c4b5fd;" onclick="event.stopPropagation();selectZone(3)">🍪 기타 구역 먼저</button>
+              <button class="mart-btn mart-btn-gray" onclick="event.stopPropagation();martReset(3)">🔄 초기화</button>
             </div>
+            <div class="mart-log" id="martLog3">🗂️ 먼저 탐색할 구역을 선택하세요!</div>
           </div>
         </div>
 
@@ -302,17 +312,25 @@ footer a:hover{color:#a5b4fc;}
 .method-q{font-size:14px;font-weight:700;color:#1e293b;line-height:1.4;}
 .method-arrow{font-size:12px;color:#94a3b8;transition:transform .3s;flex-shrink:0;}
 .method-arrow.open{transform:rotate(180deg);}
-.method-body{display:none;padding:18px 20px;background:#fff;border-top:1px solid #e5e7eb;display:none;gap:14px;align-items:flex-start;}
-.method-body.show{display:flex;}
+.method-body{display:none;padding:18px 20px;background:#fff;border-top:1px solid #e5e7eb;}
+.method-body.show{display:block;}
+.method-body.show-block{display:block;}
 .method-icon{font-size:28px;flex-shrink:0;margin-top:2px;}
-.method-name{font-size:13px;font-weight:800;color:#1e3a8a;margin-bottom:8px;}
+.method-name{font-size:13px;font-weight:800;color:#1e3a8a;}
 .method-body p{font-size:13.5px;color:#374151;line-height:1.75;}
+.mart-btn{padding:7px 14px;border:none;border-radius:8px;font-family:inherit;font-size:12.5px;font-weight:700;cursor:pointer;transition:.2s;}
+.mart-btn-blue{background:#1d4ed8;color:#fff;}
+.mart-btn-blue:hover{background:#1e3a8a;}
+.mart-btn-gray{background:#e5e7eb;color:#374151;}
+.mart-btn-gray:hover{background:#d1d5db;}
+.mart-log{margin-top:10px;padding:9px 14px;background:#f8fafc;border-radius:8px;font-size:12.5px;color:#374151;border:1px solid #e5e7eb;min-height:34px;line-height:1.6;}
 </style>
 
 <script>
 function openBlindModal(){
   document.getElementById('blindModal').style.display='block';
   document.body.style.overflow='hidden';
+  setTimeout(()=>{martInit(1);martInit(2);martInit(3);},120);
 }
 function closeBlindModal(e){
   if(!e||e.target===document.getElementById('blindModal')){
@@ -329,6 +347,381 @@ function toggleMethod(id){
   arrow.classList.toggle('open',!isOpen);
   btn.classList.toggle('open',!isOpen);
 }
+
+// ── 마트 그래프 ──
+// 4x2 grid of sections
+// TARGET: 유제품 (index 5)
+// ── 마트 그래프 (노드 + 엣지) ──
+// 레이아웃 (x,y는 0~1 비율)
+//
+//  입구 ─── 채소 ─── 과일 ─── 정육 ─── 즉석식품
+//             │        │               │
+//            음료 ─── 유제품 ─── 냉동 ─── 과자 ─── 출구
+//
+const MNODES = [
+  {id:'in',  label:'입구', emoji:'🚪', x:.04, y:.50, zone:0, order:0,  isEntry:true},
+  {id:0,     label:'채소', emoji:'🥦', x:.18, y:.22, zone:1, order:1},
+  {id:1,     label:'과일', emoji:'🍎', x:.36, y:.22, zone:1, order:2},
+  {id:2,     label:'정육', emoji:'🥩', x:.54, y:.22, zone:1, order:3},
+  {id:3,     label:'즉석식품',emoji:'🍱',x:.72,y:.22, zone:1, order:4},
+  {id:4,     label:'음료', emoji:'🥤', x:.18, y:.72, zone:2, order:5},
+  {id:5,     label:'유제품',emoji:'🥛',x:.36, y:.72, zone:2, order:6, isTarget:true},
+  {id:6,     label:'냉동', emoji:'❄️', x:.54, y:.72, zone:2, order:7},
+  {id:7,     label:'과자', emoji:'🍪', x:.72, y:.72, zone:3, order:8},
+  {id:'out', label:'출구', emoji:'🚪', x:.88, y:.50, zone:0, order:9,  isExit:true},
+];
+const MEDGES = [
+  ['in',0],
+  [0,1],[1,2],[2,3],       // 상단 통로
+  [0,4],[1,5],[3,7],       // 수직 연결
+  [4,5],[5,6],[6,7],       // 하단 통로
+  [7,'out'],
+];
+const ZONE_COLORS = {0:'#f1f5f9', 1:'#dcfce7', 2:'#dbeafe', 3:'#f3e8ff'};
+const ZONE_BORDER = {0:'#94a3b8', 1:'#22c55e', 2:'#3b82f6', 3:'#a855f7'};
+const ZONE_NAMES  = {1:'식품 구역', 2:'음료·유제품 구역', 3:'기타 구역'};
+
+let MS = {1:{visited:[], found:false, steps:0},
+          2:{visited:[], found:false, steps:0, visitCount:{}},
+          3:{visited:[], found:false, steps:0, activeZone:null}};
+
+function martCV(n){return document.getElementById('martCanvas'+n);}
+function martCTX(n){return martCV(n).getContext('2d');}
+function nodePos(node, cv){ return {x: node.x*cv.width, y: node.y*cv.height}; }
+const NODE_R = 28;
+
+function martDraw(n){
+  const cv=martCV(n); const ctx=martCTX(n);
+  const st=MS[n];
+  ctx.clearRect(0,0,cv.width,cv.height);
+
+  // bg
+  ctx.fillStyle='#f8fafc'; ctx.fillRect(0,0,cv.width,cv.height);
+
+  // Zone regions (method 3) — draw behind edges
+  if(n===3){
+    [1,2,3].forEach(z=>{
+      const zNodes=MNODES.filter(nd=>nd.zone===z);
+      if(!zNodes.length) return;
+      const xs=zNodes.map(nd=>nodePos(nd,cv).x);
+      const ys=zNodes.map(nd=>nodePos(nd,cv).y);
+      const mx=Math.min(...xs)-40, my=Math.min(...ys)-36;
+      const mw=Math.max(...xs)-Math.min(...xs)+80, mh=Math.max(...ys)-Math.min(...ys)+72;
+      ctx.save();
+      ctx.fillStyle=ZONE_COLORS[z]+'99';
+      ctx.strokeStyle=ZONE_BORDER[z];
+      ctx.lineWidth=2; ctx.setLineDash([5,4]);
+      ctx.beginPath(); ctx.roundRect(mx,my,mw,mh,16); ctx.fill(); ctx.stroke();
+      ctx.setLineDash([]);
+      // zone label
+      ctx.fillStyle=ZONE_BORDER[z]; ctx.font='bold 10px sans-serif';
+      ctx.textAlign='left'; ctx.textBaseline='top';
+      ctx.fillText(ZONE_NAMES[z], mx+8, my+6);
+      ctx.restore();
+    });
+  }
+
+  // ── Draw edges ──
+  MEDGES.forEach(([a,b])=>{
+    const na=MNODES.find(nd=>nd.id===a), nb=MNODES.find(nd=>nd.id===b);
+    const pa=nodePos(na,cv), pb=nodePos(nb,cv);
+    const aVisited=st.visited.includes(a), bVisited=st.visited.includes(b);
+    const onPath=aVisited&&bVisited;
+    ctx.save();
+    ctx.strokeStyle=onPath?'#6366f1':'#cbd5e1';
+    ctx.lineWidth=onPath?4:2;
+    ctx.setLineDash(onPath?[]:[6,4]);
+    ctx.lineCap='round';
+    ctx.beginPath(); ctx.moveTo(pa.x,pa.y); ctx.lineTo(pb.x,pb.y); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.restore();
+  });
+
+  // ── Draw nodes ──
+  MNODES.forEach(node=>{
+    const p=nodePos(node,cv);
+    const isVisited=st.visited.includes(node.id);
+    const isFound=isVisited&&node.isTarget&&st.found;
+    const isActive=n===3&&st.activeZone===node.zone&&!isVisited&&node.zone!==0;
+    const isEntry=node.isEntry||node.isExit;
+
+    // Determine reachability
+    const neighborIds = st.current !== undefined ? getNeighborIds(st.current) : [];
+    const isReachable = !isEntry && !st.found && neighborIds.includes(node.id);
+    const isCurrent = node.id === st.current;
+    const isUnreachable = !isEntry && !isVisited && !isReachable && n!==1;
+
+    // Dim unreachable nodes
+    if(isUnreachable) ctx.globalAlpha = 0.3;
+
+    // Glow ring for reachable nodes
+    if(isReachable && !st.found){
+      ctx.save();
+      const ringColor = n===3 && isActive ? ZONE_BORDER[node.zone] : '#6366f1';
+      ctx.strokeStyle = ringColor + '55';
+      ctx.lineWidth = 8;
+      ctx.beginPath(); ctx.arc(p.x, p.y, NODE_R+9, 0, Math.PI*2); ctx.stroke();
+      ctx.strokeStyle = ringColor + 'aa';
+      ctx.lineWidth = 2.5;
+      ctx.setLineDash([4,3]);
+      ctx.beginPath(); ctx.arc(p.x, p.y, NODE_R+9, 0, Math.PI*2); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.restore();
+    }
+
+    // Current position amber ring
+    if(isCurrent && !isEntry){
+      ctx.save();
+      ctx.strokeStyle='#f59e0b'; ctx.lineWidth=3;
+      ctx.beginPath(); ctx.arc(p.x, p.y, NODE_R+5, 0, Math.PI*2); ctx.stroke();
+      ctx.restore();
+    }
+
+    // Node circle
+    let fill='#fff', stroke='#94a3b8', sw=2;
+    if(isEntry)         {fill='#f1f5f9'; stroke='#94a3b8'; sw=1.5;}
+    if(isFound)         {fill='#fef08a'; stroke='#eab308'; sw=3.5;}
+    else if(isCurrent)  {fill='#fef3c7'; stroke='#f59e0b'; sw=2.5;}
+    else if(isVisited)  {fill='#e0e7ff'; stroke='#6366f1'; sw=2.5;}
+    else if(isReachable && n===3 && isActive){fill=ZONE_COLORS[node.zone]; stroke=ZONE_BORDER[node.zone]; sw=2.5;}
+    else if(isReachable){fill='#f0fdf4'; stroke='#22c55e'; sw=2;}
+
+    ctx.save();
+    ctx.shadowColor='rgba(0,0,0,.1)'; ctx.shadowBlur=8;
+    ctx.beginPath(); ctx.arc(p.x,p.y,NODE_R,0,Math.PI*2);
+    ctx.fillStyle=fill; ctx.fill();
+    ctx.strokeStyle=stroke; ctx.lineWidth=sw; ctx.stroke();
+    ctx.shadowBlur=0; ctx.restore();
+
+    // 📍현재위치 label
+    if(isCurrent && !isEntry){
+      ctx.save();
+      ctx.fillStyle='#f59e0b'; ctx.font='bold 8.5px sans-serif';
+      ctx.textAlign='center'; ctx.textBaseline='bottom';
+      ctx.fillText('📍현재위치', p.x, p.y-NODE_R-4);
+      ctx.restore();
+    }
+
+    // Visit order badge (method 1)
+    const vIdx=st.visited.indexOf(node.id);
+    if(n===1&&vIdx>=0&&!isEntry){
+      ctx.save();
+      ctx.fillStyle='#4f46e5';
+      ctx.beginPath(); ctx.arc(p.x+NODE_R-7,p.y-NODE_R+7,10,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle='#fff'; ctx.font='bold 10px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillText(vIdx, p.x+NODE_R-7, p.y-NODE_R+7);
+      ctx.restore();
+    }
+    // Visit count badge (method 2, revisits)
+    if(n===2 && st.visitCount && st.visitCount[node.id]>1){
+      ctx.save();
+      ctx.fillStyle='#ef4444';
+      ctx.beginPath(); ctx.arc(p.x+NODE_R-7,p.y-NODE_R+7,10,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle='#fff'; ctx.font='bold 10px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillText(st.visitCount[node.id], p.x+NODE_R-7, p.y-NODE_R+7);
+      ctx.restore();
+    }
+
+    // Emoji
+    ctx.font=`18px serif`; ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText(node.emoji, p.x, p.y-5);
+
+    // Label
+    ctx.font=`bold 9.5px Noto Sans KR,sans-serif`;
+    ctx.fillStyle = isVisited||isCurrent ? '#4338ca' : isEntry ? '#64748b' : '#1e293b';
+    ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText(node.label, p.x, p.y+11);
+
+    // Found label
+    if(isFound){
+      ctx.font='bold 9px sans-serif'; ctx.fillStyle='#854d0e';
+      ctx.fillText('우유 있음! ✓', p.x, p.y+NODE_R+12);
+    }
+
+    ctx.globalAlpha=1;
+  });
+}
+
+function roundRect(ctx,x,y,w,h,r){
+  ctx.beginPath();
+  ctx.moveTo(x+r,y); ctx.lineTo(x+w-r,y); ctx.arcTo(x+w,y,x+w,y+r,r);
+  ctx.lineTo(x+w,y+h-r); ctx.arcTo(x+w,y+h,x+w-r,y+h,r);
+  ctx.lineTo(x+r,y+h); ctx.arcTo(x,y+h,x,y+h-r,r);
+  ctx.lineTo(x,y+r); ctx.arcTo(x,y,x+r,y,r); ctx.closePath();
+}
+
+function martInit(n){
+  MS[n]={visited:['in'],found:false,steps:0,visitCount:{},activeZone:null,current:'in'};
+  MNODES.forEach(s=>{ if(typeof s.id==='number') MS[n].visitCount[s.id]=0; });
+  martDraw(n);
+  const log=document.getElementById('martLog'+n);
+  const firstNeighbors=getNeighborIds('in').map(id=>MNODES.find(nd=>nd.id===id).label).join(', ');
+  if(n===1) log.innerHTML=`▶ 입구에서 출발! 이동 가능한 구역: <strong>${firstNeighbors}</strong>`;
+  if(n===2) log.innerHTML=`🖱️ 연결된 구역만 클릭할 수 있어요! 이동 가능: <strong>${firstNeighbors}</strong>`;
+  if(n===3) log.innerHTML='🗂️ 먼저 탐색할 구역을 선택하세요!';
+}
+
+function martReset(n){ zone3Selected=null; martInit(n); }
+
+// Get neighbor node ids from current position via MEDGES
+function getNeighborIds(curId){
+  const nbrs=[];
+  MEDGES.forEach(([a,b])=>{
+    if(a===curId) nbrs.push(b);
+    if(b===curId) nbrs.push(a);
+  });
+  return nbrs;
+}
+
+// Method 1: click — only the next valid node in BFS order
+function martCanvasClick1(e){
+  const cv=martCV(1); const st=MS[1];
+  if(st.found) return;
+  const rect=cv.getBoundingClientRect();
+  const mx=(e.clientX-rect.left)*(cv.width/rect.width);
+  const my=(e.clientY-rect.top)*(cv.height/rect.height);
+  const clicked=martNodeAt(cv,mx,my);
+  if(!clicked) return;
+  const log=document.getElementById('martLog1');
+
+  // Must be a neighbor of current position
+  const neighbors=getNeighborIds(st.current);
+  if(!neighbors.includes(clicked.id)){
+    log.innerHTML=`⚠️ <strong>${clicked.label}</strong>은(는) 현재 위치와 연결되어 있지 않습니다!`;
+    return;
+  }
+
+  // Must be the lowest-order unvisited neighbor (순서 강제)
+  const unvisitedNeighbors=neighbors
+    .map(id=>MNODES.find(nd=>nd.id===id))
+    .filter(nd=>nd && typeof nd.id==='number' && !st.visited.includes(nd.id))
+    .sort((a,b)=>a.order-b.order);
+
+  if(unvisitedNeighbors.length && unvisitedNeighbors[0].id !== clicked.id){
+    const mustVisit=unvisitedNeighbors[0];
+    log.innerHTML=`⚠️ 순서대로 탐색해야 합니다! 먼저 <strong>${mustVisit.label} ${mustVisit.emoji}</strong>를 클릭하세요.`;
+    return;
+  }
+
+  st.visited.push(clicked.id);
+  st.current=clicked.id;
+  st.visitCount[clicked.id]=(st.visitCount[clicked.id]||0)+1;
+  st.steps++;
+  martDraw(1);
+
+  if(clicked.isTarget){
+    st.found=true;
+    log.innerHTML=`🎉 <strong>${clicked.label}에서 우유를 찾았습니다!</strong> 총 ${st.steps}번 탐색했어요.`;
+  } else {
+    const nextFrontier=MNODES.filter(nd=>typeof nd.id==='number' && !st.visited.includes(nd.id) &&
+      MEDGES.some(([a,b])=>(a===nd.id&&st.visited.includes(b))||(b===nd.id&&st.visited.includes(a))))
+      .sort((a,b)=>a.order-b.order);
+    if(nextFrontier.length){
+      log.innerHTML=`📍 <strong>${clicked.label} ${clicked.emoji}</strong> 탐색 — 우유 없음. 다음: <strong>${nextFrontier[0].label}</strong>을(를) 클릭하세요.`;
+    } else {
+      log.innerHTML=`✅ 모든 구역 탐색 완료! 우유를 찾지 못했습니다.`;
+    }
+  }
+}
+
+// Method 2: click node — only neighbors of current allowed
+function martNodeAt(cv, mx, my){
+  let hit=null;
+  MNODES.forEach(nd=>{
+    if(nd.isEntry||nd.isExit) return;
+    const p=nodePos(nd,cv);
+    if(Math.hypot(mx-p.x,my-p.y)<NODE_R+6) hit=nd;
+  });
+  return hit;
+}
+
+function martCanvasClick2(e){
+  const cv=martCV(2); const st=MS[2];
+  if(st.found) return;
+  const rect=cv.getBoundingClientRect();
+  const mx=(e.clientX-rect.left)*(cv.width/rect.width);
+  const my=(e.clientY-rect.top)*(cv.height/rect.height);
+  const clicked=martNodeAt(cv,mx,my);
+  if(!clicked) return;
+  const log=document.getElementById('martLog2');
+
+  // Check if connected to current position
+  const neighbors=getNeighborIds(st.current);
+  if(!neighbors.includes(clicked.id)){
+    log.innerHTML=`⚠️ <strong>${clicked.label}</strong>은(는) 현재 위치와 연결되어 있지 않습니다. 연결된 구역만 이동할 수 있어요!`;
+    return;
+  }
+
+  st.visitCount[clicked.id]=(st.visitCount[clicked.id]||0)+1;
+  st.steps++;
+  const isNew=!st.visited.includes(clicked.id);
+  if(isNew) st.visited.push(clicked.id);
+  st.current=clicked.id;
+  martDraw(2);
+
+  if(clicked.isTarget){
+    st.found=true;
+    log.innerHTML=`🎉 <strong>${clicked.label}에서 우유를 찾았습니다!</strong> ${st.steps}번 만에 발견!`;
+  } else {
+    const nextNbs=getNeighborIds(clicked.id).map(id=>MNODES.find(nd=>nd.id===id)).filter(nd=>nd&&!nd.isExit);
+    const revisit=st.visitCount[clicked.id]>1?` <span style="color:#ef4444;">(${st.visitCount[clicked.id]}번째 방문!)</span>`:'';
+    log.innerHTML=`🔍 <strong>${clicked.label} ${clicked.emoji}</strong> — 우유 없음${revisit}. 이동 가능: <strong>${nextNbs.map(nd=>nd.label).join(', ')}</strong>`;
+  }
+}
+
+// Method 3: zone + click — only connected neighbors
+let zone3Selected=null;
+function selectZone(z){
+  zone3Selected=z;
+  MS[3].activeZone=z;
+  martDraw(3);
+  document.getElementById('martLog3').innerHTML=`✅ <strong>${ZONE_NAMES[z]}</strong> 선택! 현재 위치와 연결된 해당 구역 노드를 클릭하세요.`;
+}
+function martCanvasClick3(e){
+  const cv=martCV(3); const st=MS[3];
+  if(!zone3Selected){document.getElementById('martLog3').innerHTML='⚠️ 먼저 탐색할 구역 버튼을 선택하세요!';return;}
+  if(st.found) return;
+  const rect=cv.getBoundingClientRect();
+  const mx=(e.clientX-rect.left)*(cv.width/rect.width);
+  const my=(e.clientY-rect.top)*(cv.height/rect.height);
+  const clicked=martNodeAt(cv,mx,my);
+  if(!clicked) return;
+  const log=document.getElementById('martLog3');
+
+  // Must be connected
+  const neighbors=getNeighborIds(st.current);
+  if(!neighbors.includes(clicked.id)){
+    log.innerHTML=`⚠️ <strong>${clicked.label}</strong>은(는) 현재 위치와 연결되어 있지 않습니다!`;
+    return;
+  }
+  if(clicked.zone!==zone3Selected){
+    log.innerHTML=`⚠️ <strong>${clicked.label}</strong>은(는) <strong>${ZONE_NAMES[zone3Selected]}</strong>이(가) 아닙니다.`;
+    return;
+  }
+  if(st.visited.includes(clicked.id)){log.innerHTML=`💬 <strong>${clicked.label}</strong>은(는) 이미 탐색했습니다.`;return;}
+  st.visited.push(clicked.id);
+  st.current=clicked.id;
+  st.steps++;
+  martDraw(3);
+  if(clicked.isTarget){
+    st.found=true;
+    log.innerHTML=`🎉 <strong>${ZONE_NAMES[zone3Selected]}의 ${clicked.label}에서 우유를 찾았습니다!</strong> 총 ${st.steps}번 탐색했어요.`;
+  } else {
+    const zoneLeft=MNODES.filter(nd=>nd.zone===zone3Selected&&typeof nd.id==='number'&&!st.visited.includes(nd.id)).length;
+    if(zoneLeft===0){
+      log.innerHTML=`🔎 ${ZONE_NAMES[zone3Selected]} 탐색 완료 — 우유 없음. 다른 구역 버튼을 선택하세요!`;
+      zone3Selected=null; MS[3].activeZone=null;
+    } else {
+      log.innerHTML=`📍 <strong>${clicked.label} ${clicked.emoji}</strong> — 우유 없음. 이 구역에 ${zoneLeft}개 남았어요.`;
+    }
+  }
+}
+
+window.addEventListener('DOMContentLoaded',()=>{
+  martCV(1).addEventListener('click',martCanvasClick1);
+  martCV(2).addEventListener('click',martCanvasClick2);
+  martCV(3).addEventListener('click',martCanvasClick3);
+});
 </script>
 
 <!-- SECTION 2 : 비교 -->
