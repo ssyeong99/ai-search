@@ -521,6 +521,55 @@ footer strong{color:rgba(255,255,255,.9);}
       <h4>💡 관계의 상대성</h4>
       <p>노드 간의 관계는 상대적입니다. 부모이면서 동시에 자식일 수 있고, 자식이 없는 노드(리프 노드)도 있습니다.</p>
     </div>
+    <div class="tcc" style="border-top-color:#16a34a;">
+      <h4>🍃 리프 노드 (Leaf)</h4>
+      <p>자식이 없는 노드입니다. 트리의 가장 끝에 위치하며, 탐색에서는 더 이상 진행할 경로가 없는 상태를 의미합니다.</p>
+    </div>
+  </div>
+
+  <!-- ── 트리 퀴즈 ── -->
+  <div class="ibox" id="treeQuizBox" style="margin-bottom:0;">
+    <h3>🧩 트리 개념 퀴즈 — 노드를 클릭해 답해보세요!</h3>
+    <p class="bdesc">두 가지 트리에서 문제가 제시됩니다. 해당하는 노드를 클릭하고 정답을 확인하세요.</p>
+
+    <!-- 퀴즈 탭 -->
+    <div style="display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;">
+      <button id="tqTab1" onclick="tqSwitchTree(1)"
+        style="padding:8px 20px;border-radius:10px;border:2px solid var(--secondary);background:var(--secondary);color:#fff;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;">
+        🌲 트리 1
+      </button>
+      <button id="tqTab2" onclick="tqSwitchTree(2)"
+        style="padding:8px 20px;border-radius:10px;border:2px solid var(--g200);background:#fff;color:var(--g700);font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;">
+        🌳 트리 2
+      </button>
+    </div>
+
+    <!-- 문제 표시 -->
+    <div id="tqQuestion" style="background:linear-gradient(135deg,#ede9fe,#fdf4ff);border-radius:14px;padding:16px 22px;margin-bottom:16px;border-left:4px solid var(--secondary);">
+      <div style="font-size:12px;font-weight:700;color:var(--secondary);letter-spacing:1px;margin-bottom:4px;">문제 <span id="tqQnum">1</span> / <span id="tqQtotal">5</span></div>
+      <div id="tqQtext" style="font-size:15px;font-weight:700;color:#1e1b4b;"></div>
+    </div>
+
+    <!-- 캔버스 -->
+    <canvas id="tqCanvas" width="580" height="260"
+      style="width:100%;border-radius:12px;display:block;cursor:pointer;background:#f8fafc;border:1.5px solid var(--g200);margin-bottom:12px;"></canvas>
+
+    <!-- 피드백 + 버튼 -->
+    <div id="tqFeedback" style="padding:10px 16px;border-radius:10px;font-size:13.5px;font-weight:600;background:#f1f5f9;color:var(--g600);border:1px solid var(--g200);margin-bottom:14px;min-height:38px;"></div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+      <button id="tqCheckBtn" onclick="tqCheck()"
+        style="padding:8px 20px;border-radius:10px;border:none;background:var(--primary);color:#fff;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;display:none;">
+        ✅ 정답 확인
+      </button>
+      <button onclick="tqNext()"
+        style="padding:8px 20px;border-radius:10px;border:2px solid var(--g200);background:#fff;color:var(--g700);font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;">
+        다음 문제 →
+      </button>
+      <button onclick="tqReset()"
+        style="padding:8px 20px;border-radius:10px;border:2px solid var(--g200);background:#fff;color:var(--g700);font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;">
+        🔄 처음부터
+      </button>
+    </div>
   </div>
 
   <div class="ibox">
@@ -2395,7 +2444,198 @@ function recSetN(v){
   recRenderSteps();
 }
 
-// init buttons and first render
+// ══════════════════════════════════════════════
+// 트리 개념 퀴즈
+// ══════════════════════════════════════════════
+// 트리 1: A→{B→{D,E}, C→{F}}
+// 트리 2: R→{P→{X,Y,Z}, Q→{W}}
+const TQ_TREES = {
+  1: {
+    nodes: [
+      {id:'A', x:.50, y:.10, parent:null,  children:['B','C']},
+      {id:'B', x:.28, y:.42, parent:'A',   children:['D','E']},
+      {id:'C', x:.72, y:.42, parent:'A',   children:['F']},
+      {id:'D', x:.16, y:.78, parent:'B',   children:[]},
+      {id:'E', x:.42, y:.78, parent:'B',   children:[]},
+      {id:'F', x:.72, y:.78, parent:'C',   children:[]},
+    ],
+    questions: [
+      {type:'single', text:'루트 노드를 클릭하세요.', answer:['A'], hint:'부모가 없는 최상위 노드입니다.'},
+      {type:'multi',  text:'리프 노드를 모두 클릭하세요. (여러 개)', answer:['D','E','F'], hint:'자식이 없는 노드를 모두 선택하세요.'},
+      {type:'single', text:'B의 부모 노드를 클릭하세요.', answer:['A'], hint:'B 바로 위에 연결된 노드입니다.'},
+      {type:'multi',  text:'A의 자식 노드를 모두 클릭하세요.', answer:['B','C'], hint:'A에서 직접 연결된 아래 노드들입니다.'},
+      {type:'multi',  text:'B의 자식 노드를 모두 클릭하세요.', answer:['D','E'], hint:'B에서 직접 연결된 아래 노드들입니다.'},
+    ]
+  },
+  2: {
+    nodes: [
+      {id:'R', x:.50, y:.10, parent:null,  children:['P','Q']},
+      {id:'P', x:.30, y:.42, parent:'R',   children:['X','Y','Z']},
+      {id:'Q', x:.72, y:.42, parent:'R',   children:['W']},
+      {id:'X', x:.12, y:.78, parent:'P',   children:[]},
+      {id:'Y', x:.32, y:.78, parent:'P',   children:[]},
+      {id:'Z', x:.52, y:.78, parent:'P',   children:[]},
+      {id:'W', x:.72, y:.78, parent:'Q',   children:[]},
+    ],
+    questions: [
+      {type:'single', text:'루트 노드를 클릭하세요.', answer:['R'], hint:'부모가 없는 최상위 노드입니다.'},
+      {type:'multi',  text:'리프 노드를 모두 클릭하세요. (여러 개)', answer:['X','Y','Z','W'], hint:'자식이 없는 노드를 모두 선택하세요.'},
+      {type:'single', text:'P의 부모 노드를 클릭하세요.', answer:['R'], hint:'P 바로 위에 연결된 노드입니다.'},
+      {type:'multi',  text:'R의 자식 노드를 모두 클릭하세요.', answer:['P','Q'], hint:'R에서 직접 연결된 아래 노드들입니다.'},
+      {type:'multi',  text:'P의 자식 노드를 모두 클릭하세요.', answer:['X','Y','Z'], hint:'P에서 직접 연결된 아래 노드들입니다.'},
+    ]
+  }
+};
+
+let tqTree=1, tqQIdx=0, tqSelected=[], tqAnswered=false, tqScore={1:0,2:0};
+
+function tqCurrent(){ return TQ_TREES[tqTree]; }
+function tqQ(){ return tqCurrent().questions[tqQIdx]; }
+function tqNodes(){ return tqCurrent().nodes; }
+
+function tqSwitchTree(n){
+  tqTree=n; tqQIdx=0; tqSelected=[]; tqAnswered=false;
+  document.getElementById('tqTab1').style.cssText=`padding:8px 20px;border-radius:10px;border:2px solid ${n===1?'var(--secondary)':'var(--g200)'};background:${n===1?'var(--secondary)':'#fff'};color:${n===1?'#fff':'var(--g700)'};font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;`;
+  document.getElementById('tqTab2').style.cssText=`padding:8px 20px;border-radius:10px;border:2px solid ${n===2?'var(--secondary)':'var(--g200)'};background:${n===2?'var(--secondary)':'#fff'};color:${n===2?'#fff':'var(--g700)'};font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;`;
+  tqRenderQuestion();
+  tqDraw();
+}
+
+function tqRenderQuestion(){
+  const q=tqQ(), qs=tqCurrent().questions;
+  document.getElementById('tqQnum').textContent=tqQIdx+1;
+  document.getElementById('tqQtotal').textContent=qs.length;
+  document.getElementById('tqQtext').textContent=q.text;
+  document.getElementById('tqFeedback').textContent='';
+  document.getElementById('tqFeedback').style.background='#f1f5f9';
+  document.getElementById('tqFeedback').style.color='var(--g600)';
+  document.getElementById('tqCheckBtn').style.display= q.type==='multi'?'inline-block':'none';
+  tqAnswered=false; tqSelected=[];
+}
+
+function tqReset(){ tqQIdx=0; tqSelected=[]; tqAnswered=false; tqScore={1:0,2:0}; tqRenderQuestion(); tqDraw(); }
+function tqNext(){
+  const qs=tqCurrent().questions;
+  if(tqQIdx<qs.length-1){ tqQIdx++; tqSelected=[]; tqAnswered=false; tqRenderQuestion(); tqDraw(); }
+  else { document.getElementById('tqFeedback').innerHTML=`🎉 트리 ${tqTree} 완료! 정답 <strong>${tqScore[tqTree]}</strong> / ${qs.length}`; document.getElementById('tqFeedback').style.background='#f0fdf4'; document.getElementById('tqFeedback').style.color='#15803d'; }
+}
+
+// multi: check button
+function tqCheck(){
+  if(tqAnswered) return;
+  tqAnswered=true;
+  const q=tqQ();
+  const correct= q.answer.length===tqSelected.length && q.answer.every(a=>tqSelected.includes(a));
+  const fb=document.getElementById('tqFeedback');
+  if(correct){
+    tqScore[tqTree]++;
+    fb.innerHTML=`✅ 정답! <strong>${q.answer.join(', ')}</strong>가 맞습니다.`;
+    fb.style.background='#f0fdf4'; fb.style.color='#15803d';
+  } else {
+    fb.innerHTML=`❌ 오답! 정답은 <strong>${q.answer.join(', ')}</strong>입니다. 💡 ${q.hint}`;
+    fb.style.background='#fef2f2'; fb.style.color='#b91c1c';
+  }
+  tqDraw();
+}
+
+// Canvas click
+document.addEventListener('DOMContentLoaded',()=>{
+  const cv=document.getElementById('tqCanvas');
+  if(!cv) return;
+  cv.addEventListener('click', e=>{
+    if(tqAnswered) return;
+    const rect=cv.getBoundingClientRect();
+    const mx=(e.clientX-rect.left)*(cv.width/rect.width);
+    const my=(e.clientY-rect.top)*(cv.height/rect.height);
+    const R=22;
+    let hit=null;
+    tqNodes().forEach(nd=>{
+      const px=nd.x*cv.width, py=nd.y*cv.height;
+      if(Math.hypot(mx-px,my-py)<R+4) hit=nd;
+    });
+    if(!hit) return;
+    const q=tqQ();
+    if(q.type==='single'){
+      // auto-check on click
+      tqAnswered=true;
+      const correct=hit.id===q.answer[0];
+      tqSelected=[hit.id];
+      const fb=document.getElementById('tqFeedback');
+      if(correct){
+        tqScore[tqTree]++;
+        fb.innerHTML=`✅ 정답! <strong>${hit.id}</strong>이(가) 맞습니다.`;
+        fb.style.background='#f0fdf4'; fb.style.color='#15803d';
+      } else {
+        fb.innerHTML=`❌ 오답! 정답은 <strong>${q.answer[0]}</strong>입니다. 💡 ${q.hint}`;
+        fb.style.background='#fef2f2'; fb.style.color='#b91c1c';
+      }
+    } else {
+      // multi: toggle selection
+      const idx=tqSelected.indexOf(hit.id);
+      if(idx>=0) tqSelected.splice(idx,1); else tqSelected.push(hit.id);
+      const fb=document.getElementById('tqFeedback');
+      fb.innerHTML=`선택: <strong>${tqSelected.length>0?tqSelected.join(', '):'없음'}</strong> — 선택 완료 후 "정답 확인"을 누르세요.`;
+      fb.style.background='#eff6ff'; fb.style.color='#1e40af';
+    }
+    tqDraw();
+  });
+  tqSwitchTree(1);
+});
+
+function tqDraw(){
+  const cv=document.getElementById('tqCanvas');
+  if(!cv) return;
+  const ctx=cv.getContext('2d');
+  const R=22;
+  const q=tqQ();
+  ctx.clearRect(0,0,cv.width,cv.height);
+  ctx.fillStyle='#f8fafc'; ctx.fillRect(0,0,cv.width,cv.height);
+
+  // Edges
+  tqNodes().forEach(nd=>{
+    nd.children.forEach(cid=>{
+      const ch=tqNodes().find(n=>n.id===cid);
+      ctx.save(); ctx.strokeStyle='#cbd5e1'; ctx.lineWidth=2.5;
+      ctx.beginPath(); ctx.moveTo(nd.x*cv.width,nd.y*cv.height); ctx.lineTo(ch.x*cv.width,ch.y*cv.height); ctx.stroke(); ctx.restore();
+    });
+  });
+
+  // Nodes
+  tqNodes().forEach(nd=>{
+    const px=nd.x*cv.width, py=nd.y*cv.height;
+    const isSelected=tqSelected.includes(nd.id);
+    const isAnswer= tqAnswered && q.answer.includes(nd.id);
+    const isWrong=  tqAnswered && isSelected && !q.answer.includes(nd.id);
+
+    let fill='#fff', stroke='#94a3b8', sw=2, tc='#374151';
+    if(isAnswer)        {fill='#4ade80'; stroke='#16a34a'; sw=3; tc='#14532d';}
+    else if(isWrong)    {fill='#fca5a5'; stroke='#dc2626'; sw=3; tc='#7f1d1d';}
+    else if(isSelected) {fill='var(--secondary)'; stroke='var(--secondary)'; sw=0; tc='#fff';}
+
+    ctx.save();
+    ctx.shadowColor='rgba(0,0,0,.10)'; ctx.shadowBlur=7;
+    ctx.beginPath(); ctx.arc(px,py,R,0,Math.PI*2);
+    ctx.fillStyle=fill; ctx.fill();
+    if(sw>0){ctx.strokeStyle=stroke; ctx.lineWidth=sw; ctx.stroke();}
+    ctx.shadowBlur=0;
+    ctx.fillStyle=tc; ctx.font='bold 15px Noto Sans KR,sans-serif';
+    ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText(nd.id,px,py);
+    ctx.restore();
+
+    // 정답 표시 아이콘
+    if(tqAnswered && isAnswer){
+      ctx.save(); ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='bottom';
+      ctx.fillText('✓', px, py-R-2); ctx.restore();
+    }
+    if(tqAnswered && isWrong){
+      ctx.save(); ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='bottom';
+      ctx.fillText('✗', px, py-R-2); ctx.restore();
+    }
+  });
+}
+
+
 (function recInit(){
   function tryInit(){
     const wrap=document.getElementById('recNBtns');
