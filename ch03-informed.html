@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>정보 이용 탐색 | Chapter 03 | 능동고등학교 인공지능 기초</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{--primary:#4f46e5;--secondary:#7c3aed;--accent:#db2777;--teal:#0d9488;--emerald:#059669;--orange:#ea580c;--bg:#eef2ff;--g50:#f9fafb;--g100:#f3f4f6;--g200:#e5e7eb;--g600:#6b7280;--g700:#374151;--g900:#111827;}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--g900);line-height:1.6;}
+
+.nav{position:sticky;top:0;z-index:1000;background:rgba(255,255,255,.93);backdrop-filter:blur(14px);border-bottom:1px solid rgba(79,70,229,.1);padding:0 36px;height:54px;display:flex;align-items:center;gap:6px;}
+.nav-brand{font-size:14px;font-weight:800;color:var(--primary);margin-right:14px;white-space:nowrap;}
+.nav a{font-size:13px;font-weight:600;color:var(--g700);text-decoration:none;padding:6px 12px;border-radius:8px;transition:.2s;white-space:nowrap;}
+.nav a:hover{background:var(--bg);color:var(--primary);}
+
+.hero{background:linear-gradient(135deg,#064e3b 0%,#065f46 30%,#0d9488 65%,#0891b2 100%);padding:70px 48px 92px;color:#fff;position:relative;overflow:hidden;}
+.hero::before,.hero::after{content:'';position:absolute;border-radius:50%;background:rgba(255,255,255,.04);pointer-events:none;}
+.hero::before{width:500px;height:500px;top:-240px;right:-100px;}
+.hero::after{width:360px;height:360px;bottom:-180px;left:-70px;}
+.hero-meta{font-size:13px;font-weight:300;opacity:.75;margin-bottom:14px;}
+.hero h1{font-size:44px;font-weight:800;margin-bottom:14px;letter-spacing:-1px;line-height:1.15;}
+.hero-desc{font-size:16px;opacity:.85;max-width:520px;}
+
+.goals-wrap{padding:0 48px;transform:translateY(-28px);position:relative;z-index:2;}
+.goals-card{background:#fff;border-radius:20px;padding:28px 36px;box-shadow:0 8px 32px rgba(79,70,229,.1);border:1px solid rgba(79,70,229,.08);}
+.goals-title{font-size:17px;font-weight:800;color:var(--primary);margin-bottom:14px;}
+.goals-list{list-style:none;display:flex;flex-direction:column;gap:9px;}
+.goals-list li{display:flex;align-items:flex-start;gap:10px;font-size:14px;color:var(--g700);}
+.gnum{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;min-width:22px;border-radius:50%;background:linear-gradient(135deg,var(--teal),var(--emerald));color:#fff;font-size:11px;font-weight:800;}
+
+.c-sec{padding:72px 48px;}
+.c-sec:nth-of-type(odd){background:#fff;}
+.c-sec:nth-of-type(even){background:var(--bg);}
+.sec-hdr{margin-bottom:40px;}
+.sec-badge{display:inline-flex;align-items:center;gap:6px;padding:5px 16px;border-radius:100px;font-size:12px;font-weight:700;letter-spacing:.5px;margin-bottom:16px;color:#fff;}
+.sec-title{font-size:32px;font-weight:800;margin-bottom:10px;letter-spacing:-.3px;}
+.sec-sub{font-size:15px;color:var(--g600);max-width:640px;}
+
+.algo-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:36px;}
+.algo-card{border-radius:20px;padding:28px;position:relative;overflow:hidden;}
+.algo-bfs-i{background:linear-gradient(135deg,#064e3b,#059669);color:#fff;}
+.algo-astar{background:linear-gradient(135deg,#7c2d12,#ea580c);color:#fff;}
+.algo-badge{display:inline-block;padding:3px 12px;border-radius:100px;background:rgba(255,255,255,.18);font-size:11px;font-weight:700;margin-bottom:12px;}
+.algo-card h3{font-size:19px;font-weight:900;margin-bottom:10px;}
+.algo-card p{font-size:13.5px;line-height:1.8;opacity:.9;}
+.algo-kw{display:inline-block;background:rgba(255,255,255,.15);border-radius:8px;padding:2px 10px;font-size:12px;font-weight:700;margin-top:12px;margin-right:6px;}
+
+.info-box{background:linear-gradient(135deg,#f0fdfa,#ecfdf5);border-radius:16px;padding:20px 28px;border:2px solid rgba(5,150,105,.25);margin-bottom:36px;}
+.info-box strong{color:#065f46;}
+
+.sim-card{background:#fff;border-radius:20px;padding:32px;border:1.5px solid var(--g200);box-shadow:0 4px 24px rgba(0,0,0,.06);margin-bottom:24px;}
+.sim-btn{padding:8px 18px;border:none;border-radius:10px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;transition:.2s;}
+.sim-btn-green{background:#059669;color:#fff;} .sim-btn-green:hover{background:#047857;}
+.sim-btn-orange{background:#ea580c;color:#fff;} .sim-btn-orange:hover{background:#c2410c;}
+.sim-btn-gray{background:var(--g200);color:var(--g700);} .sim-btn-gray:hover{background:#d1d5db;}
+.sim-log{padding:10px 14px;background:#f8fafc;border-radius:10px;font-size:12.5px;color:var(--g700);border:1px solid var(--g200);min-height:38px;line-height:1.7;margin-top:10px;}
+
+.quiz-wrap{background:#fff;border-radius:20px;padding:36px;border:1.5px solid var(--g200);box-shadow:0 4px 24px rgba(0,0,0,.06);}
+.quiz-title{font-size:18px;font-weight:800;color:var(--g900);margin-bottom:6px;}
+.quiz-sub{font-size:13.5px;color:var(--g600);margin-bottom:20px;}
+.qlog{padding:10px 16px;border-radius:10px;font-size:13px;border:1px solid var(--g200);background:#f8fafc;min-height:36px;}
+
+.legend{display:flex;flex-wrap:wrap;gap:12px;margin-top:12px;font-size:12px;color:var(--g600);}
+.legend-item{display:flex;align-items:center;gap:5px;}
+.legend-dot{width:14px;height:14px;border-radius:3px;}
+
+footer{padding:36px 48px;background:#064e3b;color:rgba(255,255,255,.6);font-size:13px;}
+footer strong{color:rgba(255,255,255,.9);}
+.ft-line{width:48px;height:3px;background:var(--teal);border-radius:2px;margin-bottom:18px;}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <span class="nav-brand">🤖 능동고 AI 기초</span>
+  <a href="index.html">← 메인</a>
+  <a href="ch03.html">↑ Chapter 03</a>
+  <a href="ch03-blind.html">← 맹목적 탐색</a>
+  <a href="#section1">정보 이용 탐색</a>
+  <a href="#section2">최상 우선 탐색</a>
+  <a href="#section3">A* 알고리즘</a>
+</nav>
+
+<div class="hero">
+  <p class="hero-meta">능동고등학교 인공지능 기초 &nbsp;|&nbsp; Chapter 03-② &nbsp;|&nbsp; made by 정보 교사 송세영</p>
+  <h1>정보 이용 탐색</h1>
+  <p class="hero-desc">목표까지의 거리 정보(휴리스틱)를 활용하여 더 똑똑하게 탐색하는 방법을 알아봅시다.</p>
+</div>
+
+<div class="goals-wrap">
+  <div class="goals-card">
+    <div class="goals-title">🎯 학습 목표</div>
+    <ul class="goals-list">
+      <li><span class="gnum">1</span><span>정보 이용 탐색의 핵심 개념인 <strong style="color:var(--teal);">휴리스틱</strong>을 설명할 수 있다.</span></li>
+      <li><span class="gnum">2</span><span><strong style="color:var(--teal);">최상 우선 탐색</strong>의 원리를 이해하고 탐색 과정을 따라갈 수 있다.</span></li>
+      <li><span class="gnum">3</span><span><strong style="color:var(--orange);">A* 알고리즘</strong>의 f(n) = g(n) + h(n) 공식을 이해하고 맹목적 탐색과 비교할 수 있다.</span></li>
+    </ul>
+  </div>
+</div>
+
+<!-- SECTION 1: 개념 -->
+<section id="section1" class="c-sec">
+  <div class="sec-hdr">
+    <span class="sec-badge" style="background:linear-gradient(135deg,#064e3b,#0d9488);">🧠 학습 01</span>
+    <h2 class="sec-title">정보 이용 탐색이란?</h2>
+    <p class="sec-sub">목표에 대한 사전 정보(휴리스틱)를 활용해 불필요한 탐색을 줄이는 방법입니다.</p>
+  </div>
+
+  <div class="info-box">
+    <strong>💡 휴리스틱(Heuristic)이란?</strong> 목표 상태까지의 <strong>예상 비용</strong>이나 <strong>거리</strong>를 추정한 값입니다.
+    정확한 값은 아니지만, 탐색 방향을 결정하는 데 도움을 줍니다. 예) 지도에서 직선 거리로 목적지까지의 거리 추정.
+  </div>
+
+  <div class="algo-grid">
+    <div class="algo-card algo-bfs-i">
+      <span class="algo-badge">Best-First Search</span>
+      <h3>최상 우선 탐색<br><span style="font-size:14px;font-weight:400;opacity:.8;">Greedy Best-First Search</span></h3>
+      <p>열린 노드 중 <strong>휴리스틱 값 h(n)이 가장 작은</strong> — 즉, 목표에 가장 가까워 보이는 — 노드를 먼저 탐색합니다. 빠르지만 최적 경로를 보장하지 않습니다.</p>
+      <span class="algo-kw">h(n)</span>
+      <span class="algo-kw">🎯 목표 지향</span>
+      <span class="algo-kw">빠르나 비최적</span>
+    </div>
+    <div class="algo-card algo-astar">
+      <span class="algo-badge">A* Algorithm</span>
+      <h3>A* 알고리즘<br><span style="font-size:14px;font-weight:400;opacity:.8;">A-Star Algorithm</span></h3>
+      <p>출발점에서의 실제 비용 <strong>g(n)</strong>과 목표까지의 예상 비용 <strong>h(n)</strong>을 합산한 <strong>f(n) = g(n) + h(n)</strong>이 가장 작은 노드를 선택합니다. 최적 경로를 보장합니다.</p>
+      <span class="algo-kw">f(n)=g(n)+h(n)</span>
+      <span class="algo-kw">⚡ 최적 보장</span>
+      <span class="algo-kw">우선순위 큐</span>
+    </div>
+  </div>
+
+  <!-- 비교 표 -->
+  <div style="background:#fff;border-radius:16px;border:1.5px solid var(--g200);overflow:hidden;">
+    <table style="width:100%;border-collapse:collapse;font-size:13.5px;">
+      <thead>
+        <tr>
+          <th style="padding:12px 18px;background:#374151;color:#fff;text-align:left;font-size:12px;letter-spacing:.5px;">구분</th>
+          <th style="padding:12px 18px;background:#1e1b4b;color:#fff;text-align:left;font-size:12px;letter-spacing:.5px;">맹목적 탐색 (DFS/BFS)</th>
+          <th style="padding:12px 18px;background:#064e3b;color:#fff;text-align:left;font-size:12px;letter-spacing:.5px;">최상 우선 탐색</th>
+          <th style="padding:12px 18px;background:#7c2d12;color:#fff;text-align:left;font-size:12px;letter-spacing:.5px;">A* 알고리즘</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr style="background:#fafafa;">
+          <td style="padding:11px 18px;font-weight:700;color:var(--g700);border-bottom:1px solid var(--g100);">사용 정보</td>
+          <td style="padding:11px 18px;border-bottom:1px solid var(--g100);">없음</td>
+          <td style="padding:11px 18px;border-bottom:1px solid var(--g100);">h(n) — 목표까지 예상 비용</td>
+          <td style="padding:11px 18px;border-bottom:1px solid var(--g100);">g(n) + h(n)</td>
+        </tr>
+        <tr>
+          <td style="padding:11px 18px;font-weight:700;color:var(--g700);border-bottom:1px solid var(--g100);">탐색 기준</td>
+          <td style="padding:11px 18px;border-bottom:1px solid var(--g100);">순서/레벨</td>
+          <td style="padding:11px 18px;border-bottom:1px solid var(--g100);">h(n) 최소 또는 최대</td>
+          <td style="padding:11px 18px;border-bottom:1px solid var(--g100);">f(n) 최소 또는 최대</td>
+        </tr>
+        <tr style="background:#fafafa;">
+          <td style="padding:11px 18px;font-weight:700;color:var(--g700);border-bottom:1px solid var(--g100);">최적 경로</td>
+          <td style="padding:11px 18px;border-bottom:1px solid var(--g100);">BFS만 보장</td>
+          <td style="padding:11px 18px;border-bottom:1px solid var(--g100);">❌ 보장 안 됨</td>
+          <td style="padding:11px 18px;border-bottom:1px solid var(--g100);">✅ 보장</td>
+        </tr>
+        <tr>
+          <td style="padding:11px 18px;font-weight:700;color:var(--g700);">탐색 효율</td>
+          <td style="padding:11px 18px;">낮음</td>
+          <td style="padding:11px 18px;">높음 (단, 부정확 가능)</td>
+          <td style="padding:11px 18px;">매우 높음</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- SECTION 2: 최상 우선 탐색 시뮬레이션 -->
+<section id="section2" class="c-sec">
+  <div class="sec-hdr">
+    <span class="sec-badge" style="background:linear-gradient(135deg,#064e3b,#059669);">🗺️ 학습 02</span>
+    <h2 class="sec-title">최상 우선 탐색 시뮬레이션</h2>
+    <p class="sec-sub">각 노드에 표시된 h(n) 값(목표까지 예상 거리)을 보고, 가장 작은 h(n)의 노드를 먼저 탐색합니다.</p>
+  </div>
+
+  <div class="sim-card">
+    <div style="font-size:14px;font-weight:700;color:#064e3b;margin-bottom:14px;">🏙️ 도시 길 찾기 — 집(S)에서 학교(G)까지</div>
+    <div style="font-size:13px;color:var(--g600);margin-bottom:18px;">각 노드 옆 숫자는 <strong>h(n)</strong> = 학교까지 예상 거리(단위: 블록). 탐색 가능한 노드 중 h(n)이 가장 작은 곳을 먼저 방문합니다.</div>
+    <div style="display:grid;grid-template-columns:auto 1fr;gap:24px;align-items:start;">
+      <canvas id="bfsICanvas" width="380" height="320" style="border-radius:12px;border:2px solid var(--g200);display:block;"></canvas>
+      <div>
+        <button class="sim-btn sim-btn-green" onclick="bfsIStep()">다음 단계 →</button>
+        <button class="sim-btn sim-btn-gray" style="margin-left:8px;" onclick="bfsIReset()">🔄 초기화</button>
+        <div class="sim-log" id="bfsILog">▶ "다음 단계"를 눌러 최상 우선 탐색을 시작하세요.</div>
+        <div class="legend">
+          <div class="legend-item"><span class="legend-dot" style="background:#059669;border-radius:50%;"></span>현재 탐색</div>
+          <div class="legend-item"><span class="legend-dot" style="background:#a7f3d0;border-radius:50%;"></span>방문 완료</div>
+          <div class="legend-item"><span class="legend-dot" style="background:#fef08a;border-radius:50%;"></span>목표 (G)</div>
+          <div class="legend-item"><span class="legend-dot" style="background:#fed7aa;border-radius:50%;"></span>열린 목록 (대기)</div>
+        </div>
+        <div style="margin-top:16px;background:#f0fdf4;border-radius:10px;padding:12px 16px;font-size:12.5px;color:#065f46;border:1px solid #a7f3d0;">
+          <strong>열린 목록(Open List)</strong> — 탐색 대기 중인 노드 목록<br>
+          <div id="bfsIOpenList" style="margin-top:6px;font-weight:700;">대기: —</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 3: A* 시뮬레이션 -->
+<section id="section3" class="c-sec">
+  <div class="sec-hdr">
+    <span class="sec-badge" style="background:linear-gradient(135deg,#7c2d12,#ea580c);">⭐ 학습 03</span>
+    <h2 class="sec-title">A* 알고리즘 시뮬레이션</h2>
+    <p class="sec-sub">f(n) = g(n) + h(n)으로 우선순위를 정해 탐색합니다. g(n)은 출발점에서의 실제 비용, h(n)은 목표까지 예상 비용입니다.</p>
+  </div>
+
+  <!-- 공식 박스 -->
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:32px;">
+    <div style="background:#fff7ed;border-radius:14px;padding:18px 20px;border:2px solid #fed7aa;text-align:center;">
+      <div style="font-size:22px;font-weight:900;color:#ea580c;margin-bottom:4px;">f(n)</div>
+      <div style="font-size:12px;color:#92400e;font-weight:700;">총 예상 비용<br>= 선택 기준</div>
+    </div>
+    <div style="background:#f0fdf4;border-radius:14px;padding:18px 20px;border:2px solid #a7f3d0;text-align:center;">
+      <div style="font-size:22px;font-weight:900;color:#059669;margin-bottom:4px;">g(n)</div>
+      <div style="font-size:12px;color:#065f46;font-weight:700;">출발점→현재 노드<br>실제 이동 비용</div>
+    </div>
+    <div style="background:#eff6ff;border-radius:14px;padding:18px 20px;border:2px solid #bfdbfe;text-align:center;">
+      <div style="font-size:22px;font-weight:900;color:#2563eb;margin-bottom:4px;">h(n)</div>
+      <div style="font-size:12px;color:#1e40af;font-weight:700;">현재 노드→목표<br>예상(휴리스틱) 비용</div>
+    </div>
+  </div>
+
+  <div class="sim-card">
+    <div style="font-size:14px;font-weight:700;color:#7c2d12;margin-bottom:14px;">⭐ A* — 같은 그래프에서 최적 경로 탐색</div>
+    <div style="font-size:13px;color:var(--g600);margin-bottom:18px;">노드 안: <strong style="color:#059669;">g</strong>/<strong style="color:#2563eb;">h</strong> 표시. 간선 위 숫자는 실제 이동 비용입니다. f(n)이 가장 작은 노드를 먼저 탐색합니다.</div>
+    <div style="display:grid;grid-template-columns:auto 1fr;gap:24px;align-items:start;">
+      <canvas id="astarCanvas" width="380" height="320" style="border-radius:12px;border:2px solid var(--g200);display:block;"></canvas>
+      <div>
+        <button class="sim-btn sim-btn-orange" onclick="astarStep()">다음 단계 →</button>
+        <button class="sim-btn sim-btn-gray" style="margin-left:8px;" onclick="astarReset()">🔄 초기화</button>
+        <div class="sim-log" id="astarLog">▶ "다음 단계"를 눌러 A* 탐색을 시작하세요.</div>
+        <div class="legend">
+          <div class="legend-item"><span class="legend-dot" style="background:#ea580c;border-radius:50%;"></span>현재 탐색</div>
+          <div class="legend-item"><span class="legend-dot" style="background:#fed7aa;border-radius:50%;"></span>방문 완료</div>
+          <div class="legend-item"><span class="legend-dot" style="background:#fef08a;border-radius:50%;"></span>목표 (G)</div>
+          <div class="legend-item"><span class="legend-dot" style="background:#dbeafe;border-radius:50%;"></span>열린 목록 (대기)</div>
+        </div>
+        <div style="margin-top:16px;background:#fff7ed;border-radius:10px;padding:12px 16px;font-size:12.5px;color:#7c2d12;border:1px solid #fed7aa;">
+          <strong>열린 목록(Open List)</strong> — f(n) 오름차순<br>
+          <div id="astarOpenList" style="margin-top:6px;font-weight:700;">대기: —</div>
+        </div>
+        <div id="astarPath" style="display:none;margin-top:12px;background:#fef3c7;border-radius:10px;padding:12px 16px;font-size:13px;font-weight:700;color:#92400e;border:1px solid #fbbf24;"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 4: 퀴즈 -->
+<section id="section4" class="c-sec">
+  <div class="sec-hdr">
+    <span class="sec-badge" style="background:linear-gradient(135deg,#059669,#ea580c);">🧩 학습 04</span>
+    <h2 class="sec-title">개념 확인 퀴즈</h2>
+    <p class="sec-sub">A* 알고리즘의 탐색 순서를 직접 클릭해서 맞혀보세요!</p>
+  </div>
+
+  <div class="quiz-wrap">
+    <div class="quiz-title">📌 A* 탐색 순서 퀴즈</div>
+    <div class="quiz-sub">아래 그래프에서 A* 알고리즘으로 S→G를 탐색할 때 방문 순서를 클릭하세요. (f(n)=g(n)+h(n) 기준)</div>
+    <div id="aqStatus" style="padding:10px 16px;border-radius:10px;background:#fff7ed;color:#92400e;font-size:13px;font-weight:700;margin-bottom:16px;">
+      ⭐ f(n)이 가장 작은 노드 순서로 클릭하세요! &nbsp;<span id="aqProgress">0 / 5</span>
+    </div>
+    <canvas id="aqCanvas" width="500" height="240" style="width:100%;max-width:500px;border-radius:14px;display:block;cursor:pointer;background:#f8fafc;border:1.5px solid var(--g200);margin-bottom:10px;"></canvas>
+    <div class="qlog" id="aqLog">👆 S부터 클릭하세요. 각 노드 안의 숫자는 g/h 값입니다.</div>
+
+    <div id="aqSimSection" style="display:none;margin-top:24px;border-top:2px solid var(--g200);padding-top:24px;">
+      <div style="font-size:15px;font-weight:800;color:var(--g900);margin-bottom:12px;">🎉 정답! A* 탐색 경로를 애니메이션으로 확인하세요</div>
+      <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;">
+        <button class="sim-btn sim-btn-orange" id="aqSimBtn" onclick="aqSimPlay()">▶ 재생</button>
+        <button class="sim-btn sim-btn-gray" onclick="aqSimReset()">🔄 처음부터</button>
+      </div>
+      <canvas id="aqSimCanvas" width="500" height="240" style="width:100%;max-width:500px;border-radius:14px;display:block;background:#f8fafc;border:1.5px solid var(--g200);"></canvas>
+      <div class="qlog" id="aqSimLog" style="margin-top:10px;"></div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="ft-line"></div>
+  <strong>능동고등학교</strong> 인공지능 기초 학습 자료<br>
+  <span style="margin-top:7px;display:block;">made by 정보 교사 <strong>송세영</strong></span>
+</footer>
+
+<script>
+// ═══════════════════════════════════════════
+// 공통 그래프 (집→학교)
+// S=집, A=사거리, B=공원, C=버스정류장, D=편의점, G=학교
+// ═══════════════════════════════════════════
+// Layout positions (ratio of canvas 380x320)
+const CITY_NODES = [
+  {id:'S', label:'집',      emoji:'🏠', x:.10, y:.50, h:7, g:0},
+  {id:'A', label:'사거리',  emoji:'🚦', x:.33, y:.20, h:5, g:0},
+  {id:'B', label:'공원',    emoji:'🌳', x:.33, y:.78, h:6, g:0},
+  {id:'C', label:'버스',    emoji:'🚌', x:.57, y:.20, h:3, g:0},
+  {id:'D', label:'편의점',  emoji:'🏪', x:.57, y:.78, h:4, g:0},
+  {id:'G', label:'학교',    emoji:'🏫', x:.88, y:.50, h:0, g:0},
+];
+// edges: [from, to, cost]
+const CITY_EDGES = [
+  ['S','A',2], ['S','B',3],
+  ['A','C',2], ['A','D',4],
+  ['B','D',2],
+  ['C','G',3], ['D','G',2],
+];
+
+function cityNXY(id, cv){
+  const nd=CITY_NODES.find(n=>n.id===id);
+  return {x:nd.x*cv.width, y:nd.y*cv.height};
+}
+const CNR=22;
+
+function drawCityGraph(cvId, visited=[], current=null, openList=[], pathNodes=[], mode='green'){
+  const cv=document.getElementById(cvId);
+  if(!cv) return;
+  const ctx=cv.getContext('2d');
+  ctx.clearRect(0,0,cv.width,cv.height);
+  ctx.fillStyle='#f8fafc'; ctx.fillRect(0,0,cv.width,cv.height);
+
+  // Edges + cost labels
+  CITY_EDGES.forEach(([a,b,cost])=>{
+    const pa=cityNXY(a,cv), pb=cityNXY(b,cv);
+    const isPath=pathNodes.includes(a)&&pathNodes.includes(b)&&
+      Math.abs(pathNodes.indexOf(a)-pathNodes.indexOf(b))===1;
+    ctx.save();
+    ctx.strokeStyle=isPath?'#ea580c':'#cbd5e1';
+    ctx.lineWidth=isPath?3:2;
+    ctx.beginPath(); ctx.moveTo(pa.x,pa.y); ctx.lineTo(pb.x,pb.y); ctx.stroke();
+    const mx=(pa.x+pb.x)/2, my=(pa.y+pb.y)/2;
+    ctx.fillStyle=isPath?'#ea580c':'#94a3b8';
+    ctx.font=`bold 11px sans-serif`; ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText(cost, mx, my-8);
+    ctx.restore();
+  });
+
+  // Nodes
+  CITY_NODES.forEach(nd=>{
+    const p=cityNXY(nd.id,cv);
+    const isVisited=visited.includes(nd.id);
+    const isCurrent=nd.id===current;
+    const isOpen=openList.some(o=>o.id===nd.id);
+    const isGoal=nd.id==='G';
+    const isPath=pathNodes.includes(nd.id);
+
+    let fill='#fff', stroke='#94a3b8', sw=2, tc='#374151';
+    if(isGoal && isVisited){fill='#fef08a';stroke='#eab308';sw=3;}
+    else if(isCurrent){ fill=mode==='green'?'#059669':'#ea580c'; stroke='transparent'; sw=0; tc='#fff'; }
+    else if(isVisited){ fill=mode==='green'?'#a7f3d0':'#fed7aa'; stroke=mode==='green'?'#34d399':'#fb923c'; sw=2; tc='#1e293b'; }
+    else if(isOpen)   { fill=mode==='green'?'#d1fae5':'#dbeafe'; stroke=mode==='green'?'#6ee7b7':'#93c5fd'; sw=2; }
+    else if(isGoal)   { fill='#fefce8'; stroke='#fbbf24'; sw=2; }
+
+    ctx.save();
+    ctx.shadowColor='rgba(0,0,0,.1)'; ctx.shadowBlur=6;
+    ctx.beginPath(); ctx.arc(p.x,p.y,CNR,0,Math.PI*2);
+    ctx.fillStyle=fill; ctx.fill();
+    if(sw>0){ctx.strokeStyle=stroke;ctx.lineWidth=sw;ctx.stroke();}
+    ctx.shadowBlur=0;
+
+    // Node label
+    ctx.fillStyle=tc; ctx.font=`bold 13px Noto Sans KR,sans-serif`;
+    ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText(nd.id, p.x, p.y);
+
+    // h(n) label under node
+    ctx.fillStyle='#64748b'; ctx.font='bold 10px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='top';
+    ctx.fillText(`h=${nd.h}`, p.x, p.y+CNR+2);
+    ctx.restore();
+
+    // Location emoji label above
+    ctx.save(); ctx.font='10px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='bottom';
+    ctx.fillText(nd.label, p.x, p.y-CNR-2); ctx.restore();
+  });
+}
+
+// ─── 최상 우선 탐색 시뮬레이션 ───
+let bfsIVisited=[], bfsICurrent=null, bfsIOpen=[], bfsIDone=false, bfsIStep_=0;
+
+function bfsIReset(){
+  bfsIVisited=[]; bfsICurrent=null; bfsIDone=false; bfsIStep_=0;
+  bfsIOpen=[{id:'S', h:CITY_NODES.find(n=>n.id==='S').h}];
+  document.getElementById('bfsILog').innerHTML='▶ "다음 단계"를 눌러 최상 우선 탐색을 시작하세요.';
+  document.getElementById('bfsIOpenList').textContent='대기: S(h=7)';
+  drawCityGraph('bfsICanvas',[],null,bfsIOpen,[],'green');
+}
+
+function bfsIStep(){
+  if(bfsIDone||!bfsIOpen.length){document.getElementById('bfsILog').innerHTML='탐색 완료!';return;}
+  // Sort by h
+  bfsIOpen.sort((a,b)=>a.h-b.h);
+  const cur=bfsIOpen.shift();
+  bfsIVisited.push(cur.id);
+  bfsICurrent=cur.id;
+  bfsIStep_++;
+  const log=document.getElementById('bfsILog');
+  if(cur.id==='G'){
+    bfsIDone=true;
+    log.innerHTML=`🎉 목표(학교) 발견! 탐색 순서: ${bfsIVisited.join(' → ')} (총 ${bfsIStep_}번)`;
+    drawCityGraph('bfsICanvas',bfsIVisited,cur.id,bfsIOpen,[],'green');
+    document.getElementById('bfsIOpenList').textContent='완료!';
+    return;
+  }
+  // Add neighbours
+  CITY_EDGES.forEach(([a,b])=>{
+    const neighbour=(a===cur.id)?b:(b===cur.id)?a:null;
+    if(neighbour && !bfsIVisited.includes(neighbour) && !bfsIOpen.some(o=>o.id===neighbour)){
+      const nd=CITY_NODES.find(n=>n.id===neighbour);
+      bfsIOpen.push({id:neighbour, h:nd.h});
+    }
+  });
+  bfsIOpen.sort((a,b)=>a.h-b.h);
+  log.innerHTML=`${bfsIStep_}번째: <strong>${cur.id}(${CITY_NODES.find(n=>n.id===cur.id).label})</strong> 탐색 — h(n)=${cur.h}`;
+  document.getElementById('bfsIOpenList').textContent='대기: '+bfsIOpen.map(o=>`${o.id}(h=${o.h})`).join(', ');
+  drawCityGraph('bfsICanvas',bfsIVisited,cur.id,bfsIOpen,[],'green');
+}
+
+// ─── A* 알고리즘 시뮬레이션 ───
+let astarVisited=[], astarCurrent=null, astarOpen=[], astarDone=false, astarStepN=0, astarParent={}, astarG={};
+
+function astarReset(){
+  astarVisited=[]; astarCurrent=null; astarDone=false; astarStepN=0; astarParent={}; astarG={S:0};
+  const hS=CITY_NODES.find(n=>n.id==='S').h;
+  astarOpen=[{id:'S', f:0+hS, g:0, h:hS}];
+  document.getElementById('astarLog').innerHTML='▶ "다음 단계"를 눌러 A* 탐색을 시작하세요.';
+  document.getElementById('astarOpenList').textContent='대기: S(f=7)';
+  document.getElementById('astarPath').style.display='none';
+  drawCityGraphAstar('astarCanvas',[],null,astarOpen,[]);
+}
+
+function getCostBetween(a,b){
+  const e=CITY_EDGES.find(([x,y])=>(x===a&&y===b)||(x===b&&y===a));
+  return e?e[2]:Infinity;
+}
+
+function astarStep(){
+  if(astarDone||!astarOpen.length){document.getElementById('astarLog').innerHTML='탐색 완료!';return;}
+  astarOpen.sort((a,b)=>a.f-b.f);
+  const cur=astarOpen.shift();
+  astarVisited.push(cur.id);
+  astarCurrent=cur.id;
+  astarStepN++;
+  const log=document.getElementById('astarLog');
+
+  if(cur.id==='G'){
+    astarDone=true;
+    // reconstruct path
+    let path=[]; let node='G';
+    while(node){path.unshift(node); node=astarParent[node];}
+    const pathStr=path.join(' → ');
+    log.innerHTML=`🎉 목표(학교) 발견! 최적 경로: <strong>${pathStr}</strong> / 총 비용: <strong>${cur.g}</strong>`;
+    document.getElementById('astarOpenList').textContent='완료!';
+    const pd=document.getElementById('astarPath');
+    pd.innerHTML=`🏆 최적 경로: <strong>${pathStr}</strong> | 총 비용: <strong>${cur.g}</strong>`;
+    pd.style.display='block';
+    drawCityGraphAstar('astarCanvas',astarVisited,cur.id,astarOpen,path);
+    return;
+  }
+
+  // Expand neighbours
+  CITY_EDGES.forEach(([a,b,cost])=>{
+    const nb=(a===cur.id)?b:(b===cur.id)?a:null;
+    if(!nb||astarVisited.includes(nb)) return;
+    const newG=cur.g+cost;
+    const ndH=CITY_NODES.find(n=>n.id===nb).h;
+    const newF=newG+ndH;
+    const existing=astarOpen.find(o=>o.id===nb);
+    if(!existing||newG<existing.g){
+      if(existing) existing.g=newG, existing.f=newF;
+      else astarOpen.push({id:nb,f:newF,g:newG,h:ndH});
+      astarParent[nb]=cur.id;
+    }
+  });
+  astarOpen.sort((a,b)=>a.f-b.f);
+  log.innerHTML=`${astarStepN}번째: <strong>${cur.id}</strong> 탐색 — g=${cur.g}, h=${cur.h}, f=${cur.f}`;
+  document.getElementById('astarOpenList').textContent='대기: '+astarOpen.map(o=>`${o.id}(f=${o.f})`).join(', ');
+  drawCityGraphAstar('astarCanvas',astarVisited,cur.id,astarOpen,[]);
+}
+
+function drawCityGraphAstar(cvId, visited=[], current=null, openList=[], pathNodes=[]){
+  const cv=document.getElementById(cvId);
+  if(!cv) return;
+  const ctx=cv.getContext('2d');
+  ctx.clearRect(0,0,cv.width,cv.height);
+  ctx.fillStyle='#f8fafc'; ctx.fillRect(0,0,cv.width,cv.height);
+
+  CITY_EDGES.forEach(([a,b,cost])=>{
+    const pa=cityNXY(a,cv), pb=cityNXY(b,cv);
+    const isPath=pathNodes.length>1&&pathNodes.includes(a)&&pathNodes.includes(b)&&
+      Math.abs(pathNodes.indexOf(a)-pathNodes.indexOf(b))===1;
+    ctx.save();
+    ctx.strokeStyle=isPath?'#ea580c':'#cbd5e1';
+    ctx.lineWidth=isPath?3.5:2;
+    ctx.beginPath(); ctx.moveTo(pa.x,pa.y); ctx.lineTo(pb.x,pb.y); ctx.stroke();
+    const mx=(pa.x+pb.x)/2, my=(pa.y+pb.y)/2;
+    ctx.fillStyle=isPath?'#ea580c':'#94a3b8'; ctx.font='bold 11px sans-serif';
+    ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText(cost, mx, my-8);
+    ctx.restore();
+  });
+
+  CITY_NODES.forEach(nd=>{
+    const p=cityNXY(nd.id,cv);
+    const isVisited=visited.includes(nd.id);
+    const isCurrent=nd.id===current;
+    const isOpen=openList.some(o=>o.id===nd.id);
+    const isGoal=nd.id==='G';
+    const isPath=pathNodes.includes(nd.id);
+    const openData=openList.find(o=>o.id===nd.id);
+    const g=astarG[nd.id]||0;
+
+    let fill='#fff', stroke='#94a3b8', sw=2, tc='#374151';
+    if(isGoal&&isVisited){fill='#fef08a';stroke='#eab308';sw=3;tc='#854d0e';}
+    else if(isCurrent)   {fill='#ea580c';stroke='transparent';sw=0;tc='#fff';}
+    else if(isVisited)   {fill='#fed7aa';stroke='#fb923c';sw=2;tc='#7c2d12';}
+    else if(isOpen)      {fill='#dbeafe';stroke='#93c5fd';sw=2;}
+    else if(isGoal)      {fill='#fefce8';stroke='#fbbf24';sw=2;}
+
+    ctx.save();
+    ctx.shadowColor='rgba(0,0,0,.1)'; ctx.shadowBlur=6;
+    ctx.beginPath(); ctx.arc(p.x,p.y,CNR,0,Math.PI*2);
+    ctx.fillStyle=fill; ctx.fill();
+    if(sw>0){ctx.strokeStyle=stroke;ctx.lineWidth=sw;ctx.stroke();}
+    ctx.shadowBlur=0;
+
+    ctx.fillStyle=tc; ctx.font='bold 13px Noto Sans KR,sans-serif';
+    ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText(nd.id, p.x, p.y);
+
+    // Show f value if in open or visited
+    const fData=openList.find(o=>o.id===nd.id);
+    if(fData){
+      ctx.fillStyle='#1d4ed8'; ctx.font='bold 9px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='top';
+      ctx.fillText(`f=${fData.f}`, p.x, p.y+CNR+2);
+    } else {
+      ctx.fillStyle='#64748b'; ctx.font='bold 9px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='top';
+      ctx.fillText(`h=${nd.h}`, p.x, p.y+CNR+2);
+    }
+
+    ctx.save(); ctx.font='10px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='bottom';
+    ctx.fillStyle='#475569'; ctx.fillText(nd.label, p.x, p.y-CNR-2); ctx.restore();
+    ctx.restore();
+  });
+}
+
+// ─── A* 퀴즈 ───
+// Quiz graph: smaller 5-node graph  S→{A(g2,h4), B(g3,h5)}, A→{C(g5,h2), D(g6,h3)}, C→G(g8,h0)
+// f values: S=0+6=6(start), A=2+4=6, B=3+5=8, C=5+2=7, D=6+3=9, G=8+0=8
+// A* order: S(6) → A(6) → C(7) → G(8)  [ties broken alphabetically]
+const AQ_NODES=[
+  {id:'S', x:.09, y:.50, g:0,  h:6, label:'출발'},
+  {id:'A', x:.35, y:.22, g:2,  h:4, label:''},
+  {id:'B', x:.35, y:.78, g:3,  h:5, label:''},
+  {id:'C', x:.63, y:.22, g:5,  h:2, label:''},
+  {id:'D', x:.63, y:.78, g:6,  h:3, label:''},
+  {id:'G', x:.91, y:.50, g:8,  h:0, label:'목표'},
+];
+const AQ_EDGES=[['S','A',2],['S','B',3],['A','C',3],['A','D',4],['B','D',3],['C','G',3],['D','G',2]];
+const AQ_ORDER=['S','A','C','G']; // A* visit order stopping at G
+const AQNR=20;
+
+let aqClicked=[], aqDone=false;
+
+function aqNXY(id,cv){const nd=AQ_NODES.find(n=>n.id===id);return{x:nd.x*cv.width,y:nd.y*cv.height};}
+
+function drawAQTree(cvId, highlighted=[], flash=null, flashOk=true, arrows=[]){
+  const cv=document.getElementById(cvId);
+  if(!cv) return;
+  const ctx=cv.getContext('2d');
+  ctx.clearRect(0,0,cv.width,cv.height);
+  ctx.fillStyle='#f8fafc'; ctx.fillRect(0,0,cv.width,cv.height);
+
+  AQ_EDGES.forEach(([a,b,cost])=>{
+    const pa=aqNXY(a,cv),pb=aqNXY(b,cv);
+    const isArrow=arrows.some(ar=>(ar[0]===a&&ar[1]===b)||(ar[0]===b&&ar[1]===a));
+    ctx.save(); ctx.strokeStyle=isArrow?'#ea580c':'#cbd5e1'; ctx.lineWidth=isArrow?2.5:1.8;
+    ctx.beginPath(); ctx.moveTo(pa.x,pa.y); ctx.lineTo(pb.x,pb.y); ctx.stroke();
+    ctx.fillStyle=isArrow?'#ea580c':'#94a3b8'; ctx.font='bold 10px sans-serif';
+    ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText(cost,(pa.x+pb.x)/2,(pa.y+pb.y)/2-7); ctx.restore();
+  });
+
+  AQ_NODES.forEach(nd=>{
+    const p=aqNXY(nd.id,cv);
+    const idx=highlighted.indexOf(nd.id);
+    const isH=idx>=0, isFlash=nd.id===flash, isCur=idx===highlighted.length-1;
+
+    let fill='#fff', stroke='#94a3b8', sw=2, tc='#374151';
+    if(isFlash&&flashOk){fill='#dcfce7';stroke='#22c55e';sw=3;tc='#15803d';}
+    else if(isFlash){fill='#fee2e2';stroke='#ef4444';sw=3;tc='#b91c1c';}
+    else if(isCur){fill='#ea580c';stroke='transparent';sw=0;tc='#fff';}
+    else if(isH){fill='#fed7aa';stroke='#fb923c';sw=2;tc='#7c2d12';}
+    else if(nd.id==='G'){fill='#fefce8';stroke='#fbbf24';sw=2;}
+
+    ctx.save();
+    ctx.shadowColor='rgba(0,0,0,.1)'; ctx.shadowBlur=5;
+    ctx.beginPath(); ctx.arc(p.x,p.y,AQNR,0,Math.PI*2);
+    ctx.fillStyle=fill; ctx.fill();
+    if(sw>0){ctx.strokeStyle=stroke;ctx.lineWidth=sw;ctx.stroke();}
+    ctx.shadowBlur=0;
+    ctx.fillStyle=tc; ctx.font='bold 12px Noto Sans KR,sans-serif';
+    ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(nd.id,p.x,p.y);
+
+    const fval=nd.g+nd.h;
+    ctx.fillStyle='#64748b'; ctx.font='bold 9px sans-serif';
+    ctx.textAlign='center'; ctx.textBaseline='top';
+    ctx.fillText(`f=${fval}`,p.x,p.y+AQNR+2);
+    if(nd.label){ctx.fillStyle='#475569';ctx.textBaseline='bottom';ctx.fillText(nd.label,p.x,p.y-AQNR-2);}
+    if(idx>=0){
+      ctx.fillStyle='rgba(0,0,0,.15)';ctx.beginPath();ctx.arc(p.x+AQNR-6,p.y-AQNR+6,8,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle=isCur?'#fff':'#1e293b';ctx.font='bold 8px sans-serif';
+      ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(idx+1,p.x+AQNR-6,p.y-AQNR+6);
+    }
+    ctx.restore();
+  });
+}
+
+document.addEventListener('DOMContentLoaded',()=>{
+  bfsIReset();
+  astarReset();
+  drawAQTree('aqCanvas',[]);
+
+  document.getElementById('aqCanvas').addEventListener('click',e=>{
+    if(aqDone) return;
+    const cv=document.getElementById('aqCanvas');
+    const rect=cv.getBoundingClientRect();
+    const mx=(e.clientX-rect.left)*(cv.width/rect.width);
+    const my=(e.clientY-rect.top)*(cv.height/rect.height);
+    let hit=null;
+    AQ_NODES.forEach(nd=>{const p=aqNXY(nd.id,cv);if(Math.hypot(mx-p.x,my-p.y)<AQNR+5) hit=nd;});
+    if(!hit) return;
+    const log=document.getElementById('aqLog');
+    const expected=AQ_ORDER[aqClicked.length];
+    if(aqClicked.includes(hit.id)){log.innerHTML=`💬 이미 탐색한 노드입니다.`;return;}
+    if(hit.id!==expected){
+      log.innerHTML=`❌ 틀렸습니다! (f값이 가장 작은 노드를 선택하세요)`;
+      drawAQTree('aqCanvas',aqClicked,hit.id,false); setTimeout(()=>drawAQTree('aqCanvas',aqClicked),600); return;
+    }
+    aqClicked.push(hit.id);
+    document.getElementById('aqProgress').textContent=`${aqClicked.length} / ${AQ_ORDER.length}`;
+    const isFinal=aqClicked.length===AQ_ORDER.length;
+    drawAQTree('aqCanvas',aqClicked,hit.id,true);
+    setTimeout(()=>drawAQTree('aqCanvas',aqClicked),500);
+    if(isFinal){
+      aqDone=true;
+      const st=document.getElementById('aqStatus');
+      st.style.background='#dcfce7'; st.style.color='#15803d';
+      st.innerHTML=`🎉 정답! A* 탐색 순서: ${AQ_ORDER.join(' → ')}`;
+      log.innerHTML=`✅ 완벽합니다! 아래에서 애니메이션으로 확인하세요.`;
+      document.getElementById('aqSimSection').style.display='block';
+      drawAQTree('aqSimCanvas',[]);
+    } else {
+      log.innerHTML=`✅ <strong>${hit.id}</strong> 정답! (f=${hit.g+hit.h})`;
+    }
+  });
+});
+
+let aqSimStep=0, aqSimTimer=null, aqSimNodes=[], aqSimArrows=[];
+function aqSimPlay(){
+  if(aqSimTimer) clearInterval(aqSimTimer);
+  aqSimStep=0; aqSimNodes=[]; aqSimArrows=[];
+  document.getElementById('aqSimBtn').disabled=true;
+  const log=document.getElementById('aqSimLog');
+  aqSimTimer=setInterval(()=>{
+    if(aqSimStep>=AQ_ORDER.length){
+      clearInterval(aqSimTimer); document.getElementById('aqSimBtn').disabled=false;
+      log.innerHTML=`🎉 A* 탐색 완료! 경로: <strong>${AQ_ORDER.join(' → ')}</strong>`;
+      return;
+    }
+    const cur=AQ_ORDER[aqSimStep];
+    aqSimNodes.push(cur);
+    if(aqSimStep>0){
+      aqSimArrows.push([AQ_ORDER[aqSimStep-1],cur]);
+    }
+    drawAQTree('aqSimCanvas',aqSimNodes,null,true,aqSimArrows);
+    const nd=AQ_NODES.find(n=>n.id===cur);
+    log.innerHTML=`${aqSimStep+1}번째: <strong>${cur}</strong> 탐색 (f=${nd.g+nd.h})`;
+    aqSimStep++;
+  },900);
+}
+function aqSimReset(){
+  clearInterval(aqSimTimer); aqSimStep=0; aqSimNodes=[]; aqSimArrows=[];
+  document.getElementById('aqSimBtn').disabled=false;
+  document.getElementById('aqSimLog').innerHTML='';
+  drawAQTree('aqSimCanvas',[]);
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,973 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>맹목적 탐색 | Chapter 03 | 능동고등학교 인공지능 기초</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{--primary:#4f46e5;--secondary:#7c3aed;--accent:#db2777;--teal:#0d9488;--bg:#eef2ff;--g50:#f9fafb;--g100:#f3f4f6;--g200:#e5e7eb;--g600:#6b7280;--g700:#374151;--g900:#111827;}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--g900);line-height:1.6;}
+
+/* NAV */
+.nav{position:sticky;top:0;z-index:1000;background:rgba(255,255,255,.93);backdrop-filter:blur(14px);border-bottom:1px solid rgba(79,70,229,.1);padding:0 36px;height:54px;display:flex;align-items:center;gap:6px;}
+.nav-brand{font-size:14px;font-weight:800;color:var(--primary);margin-right:14px;white-space:nowrap;}
+.nav a{font-size:13px;font-weight:600;color:var(--g700);text-decoration:none;padding:6px 12px;border-radius:8px;transition:.2s;white-space:nowrap;}
+.nav a:hover{background:var(--bg);color:var(--primary);}
+
+/* HERO */
+.hero{background:linear-gradient(135deg,#1e1b4b 0%,#312e81 35%,#4338ca 70%,#7c3aed 100%);padding:70px 48px 92px;color:#fff;position:relative;overflow:hidden;}
+.hero::before,.hero::after{content:'';position:absolute;border-radius:50%;background:rgba(255,255,255,.04);pointer-events:none;}
+.hero::before{width:500px;height:500px;top:-240px;right:-100px;}
+.hero::after{width:360px;height:360px;bottom:-180px;left:-70px;}
+.hero-meta{font-size:13px;font-weight:300;opacity:.75;margin-bottom:14px;}
+.hero h1{font-size:44px;font-weight:800;margin-bottom:14px;letter-spacing:-1px;line-height:1.15;}
+.hero-desc{font-size:16px;opacity:.85;max-width:520px;}
+
+/* GOALS */
+.goals-wrap{padding:0 48px;transform:translateY(-28px);position:relative;z-index:2;}
+.goals-card{background:#fff;border-radius:20px;padding:28px 36px;box-shadow:0 8px 32px rgba(79,70,229,.1);border:1px solid rgba(79,70,229,.08);}
+.goals-title{font-size:17px;font-weight:800;color:var(--primary);margin-bottom:14px;}
+.goals-list{list-style:none;display:flex;flex-direction:column;gap:9px;}
+.goals-list li{display:flex;align-items:flex-start;gap:10px;font-size:14px;color:var(--g700);}
+.gnum{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;min-width:22px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--secondary));color:#fff;font-size:11px;font-weight:800;}
+
+/* SECTION */
+.c-sec{padding:72px 48px;}
+.c-sec:nth-of-type(odd){background:#fff;}
+.c-sec:nth-of-type(even){background:var(--bg);}
+.sec-hdr{margin-bottom:40px;}
+.sec-badge{display:inline-flex;align-items:center;gap:6px;padding:5px 16px;border-radius:100px;font-size:12px;font-weight:700;letter-spacing:.5px;margin-bottom:16px;color:#fff;}
+.sec-title{font-size:32px;font-weight:800;margin-bottom:10px;letter-spacing:-.3px;}
+.sec-sub{font-size:15px;color:var(--g600);max-width:640px;}
+
+/* ALGO CARDS (DFS / BFS) */
+.algo-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:36px;}
+.algo-card{border-radius:20px;padding:28px;position:relative;overflow:hidden;}
+.algo-dfs{background:linear-gradient(135deg,#1e1b4b,#4338ca);color:#fff;}
+.algo-bfs{background:linear-gradient(135deg,#065f46,#0d9488);color:#fff;}
+.algo-badge{display:inline-block;padding:3px 12px;border-radius:100px;background:rgba(255,255,255,.18);font-size:11px;font-weight:700;margin-bottom:12px;}
+.algo-card h3{font-size:19px;font-weight:900;margin-bottom:10px;}
+.algo-card p{font-size:13.5px;line-height:1.8;opacity:.9;}
+.algo-kw{display:inline-block;background:rgba(255,255,255,.15);border-radius:8px;padding:2px 10px;font-size:12px;font-weight:700;margin-top:12px;margin-right:6px;}
+
+/* LEVEL DEF */
+.level-box{background:linear-gradient(135deg,#fef3c7,#fff7ed);border-radius:16px;padding:20px 28px;border:2px solid #fbbf24;margin-bottom:36px;}
+.level-box strong{color:#92400e;}
+
+/* MAZE SECTION */
+.maze-tabs{display:flex;gap:10px;margin-bottom:20px;}
+.maze-tab{padding:9px 22px;border-radius:10px;border:2px solid var(--g200);background:#fff;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;transition:.2s;color:var(--g700);}
+.maze-tab.active-dfs{background:#4338ca;color:#fff;border-color:#4338ca;}
+.maze-tab.active-bfs{background:#0d9488;color:#fff;border-color:#0d9488;}
+.maze-wrap{display:grid;grid-template-columns:auto 1fr;gap:24px;align-items:start;}
+.maze-side{display:flex;flex-direction:column;gap:10px;}
+.sim-btn{padding:8px 18px;border:none;border-radius:10px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;transition:.2s;}
+.sim-btn-dfs{background:#4338ca;color:#fff;}
+.sim-btn-dfs:hover{background:#3730a3;}
+.sim-btn-bfs{background:#0d9488;color:#fff;}
+.sim-btn-bfs:hover{background:#065f46;}
+.sim-btn-gray{background:var(--g200);color:var(--g700);}
+.sim-btn-gray:hover{background:#d1d5db;}
+.sim-log{margin-top:10px;padding:10px 14px;background:#f8fafc;border-radius:10px;font-size:12.5px;color:var(--g700);border:1px solid var(--g200);min-height:38px;line-height:1.6;}
+
+/* QUIZ SECTION */
+.quiz-wrap{background:#fff;border-radius:20px;padding:36px;border:1.5px solid var(--g200);box-shadow:0 4px 24px rgba(0,0,0,.06);}
+.quiz-title{font-size:18px;font-weight:800;color:var(--g900);margin-bottom:6px;}
+.quiz-sub{font-size:13.5px;color:var(--g600);margin-bottom:24px;}
+.quiz-tabs{display:flex;gap:10px;margin-bottom:20px;}
+.qtab{padding:8px 20px;border-radius:10px;border:2px solid var(--g200);background:#fff;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;transition:.2s;color:var(--g700);}
+.qtab.active-dfs{background:#4338ca;color:#fff;border-color:#4338ca;}
+.qtab.active-bfs{background:#0d9488;color:#fff;border-color:#0d9488;}
+.quiz-status{padding:10px 16px;border-radius:10px;font-size:13px;font-weight:700;margin-bottom:16px;text-align:center;}
+.qlog{padding:10px 16px;border-radius:10px;font-size:13px;border:1px solid var(--g200);background:#f8fafc;min-height:36px;margin-top:14px;}
+
+/* FOOTER */
+footer{padding:36px 48px;background:#1e1b4b;color:rgba(255,255,255,.6);font-size:13px;}
+footer strong{color:rgba(255,255,255,.9);}
+.ft-line{width:48px;height:3px;background:var(--primary);border-radius:2px;margin-bottom:18px;}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <span class="nav-brand">🤖 능동고 AI 기초</span>
+  <a href="index.html">← 메인</a>
+  <a href="ch03.html">↑ Chapter 03</a>
+  <a href="ch03-informed.html">정보 이용 탐색 →</a>
+  <a href="#section1">맹목적 탐색</a>
+  <a href="#section2">미로 시뮬레이션</a>
+  <a href="#section3">퀴즈</a>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <p class="hero-meta">능동고등학교 인공지능 기초 &nbsp;|&nbsp; Chapter 03 &nbsp;|&nbsp; made by 정보 교사 송세영</p>
+  <h1>맹목적 탐색</h1>
+  <p class="hero-desc">DFS와 BFS — 정보 없이 규칙만으로 탐색하는 두 가지 방법을 직접 체험해봅시다.</p>
+</div>
+
+<!-- GOALS -->
+<div class="goals-wrap">
+  <div class="goals-card">
+    <div class="goals-title">🎯 학습 목표</div>
+    <ul class="goals-list">
+      <li><span class="gnum">1</span><span>깊이 우선 탐색(DFS)의 원리를 <strong style="color:var(--primary);">설명</strong>할 수 있다.</span></li>
+      <li><span class="gnum">2</span><span>너비 우선 탐색(BFS)의 원리를 <strong style="color:var(--primary);">설명</strong>할 수 있다.</span></li>
+      <li><span class="gnum">3</span><span>DFS와 BFS의 <strong style="color:var(--accent);">차이</strong>를 미로 탐색 예시로 <strong style="color:var(--primary);">비교</strong>할 수 있다.</span></li>
+    </ul>
+  </div>
+</div>
+
+<!-- SECTION 1: 개념 설명 -->
+<section id="section1" class="c-sec">
+  <div class="sec-hdr">
+    <span class="sec-badge" style="background:linear-gradient(135deg,#1e1b4b,#4338ca);">🔍 학습 01</span>
+    <h2 class="sec-title">맹목적 탐색이란?</h2>
+    <p class="sec-sub">사전 정보 없이 정해진 규칙만으로 탐색 공간을 뒤지는 방법입니다. 대표적으로 DFS와 BFS가 있습니다.</p>
+  </div>
+
+  <!-- DFS / BFS 카드 -->
+  <div class="algo-grid">
+    <div class="algo-card algo-dfs">
+      <span class="algo-badge">DFS</span>
+      <h3>깊이 우선 탐색<br><span style="font-size:14px;font-weight:400;opacity:.8;">Depth-First Search</span></h3>
+      <p>한 방향으로 <strong>갈 수 있을 때까지 계속</strong> 탐색합니다.<br>더 이상 갈 수 없으면 <strong>이전 단계로 되돌아와(백트래킹)</strong> 다른 방향을 탐색합니다.</p>
+      <span class="algo-kw">🔽 세로 우선</span>
+      <span class="algo-kw">↩ 백트래킹</span>
+      <span class="algo-kw">스택/재귀</span>
+    </div>
+    <div class="algo-card algo-bfs">
+      <span class="algo-badge">BFS</span>
+      <h3>너비 우선 탐색<br><span style="font-size:14px;font-weight:400;opacity:.8;">Breadth-First Search</span></h3>
+      <p>현재 노드와 <strong>연결된 모든 노드를 먼저</strong> 탐색합니다.<br><strong>레벨 단위로 탐색</strong>하며, 방문한 노드는 다시 방문하지 않습니다.</p>
+      <span class="algo-kw">➡ 가로 우선</span>
+      <span class="algo-kw">📋 레벨 순서</span>
+      <span class="algo-kw">큐(Queue)</span>
+    </div>
+  </div>
+
+  <!-- 레벨 개념 -->
+  <div class="level-box">
+    <strong>📐 레벨(Level)이란?</strong> 트리에서 루트 노드를 <strong>0 또는 1</strong>로 정하고, 자식 노드로 한 칸씩 내려올 때마다 1씩 증가합니다.
+    DFS는 레벨을 깊게 파고들고, BFS는 레벨 순서로 넓게 탐색합니다.
+  </div>
+</section>
+
+<!-- SECTION 2: 미로 시뮬레이션 -->
+<section id="section2" class="c-sec">
+  <div class="sec-hdr">
+    <span class="sec-badge" style="background:linear-gradient(135deg,#7c3aed,#db2777);">🗺️ 학습 02</span>
+    <h2 class="sec-title">미로에서 DFS vs BFS</h2>
+    <p class="sec-sub">같은 미로를 DFS와 BFS로 탐색하면 어떻게 다를까요? 직접 한 칸씩 탐색해보세요!</p>
+  </div>
+
+  <div style="background:#fff;border-radius:20px;padding:32px;border:1.5px solid var(--g200);box-shadow:0 4px 24px rgba(0,0,0,.06);">
+    <div class="maze-tabs">
+      <button class="maze-tab active-dfs" id="tabDFS" onclick="switchMaze('dfs')">🔽 DFS (깊이 우선)</button>
+      <button class="maze-tab" id="tabBFS" onclick="switchMaze('bfs')">➡ BFS (너비 우선)</button>
+    </div>
+    <div class="maze-wrap">
+      <canvas id="mazeCanvas" width="300" height="300" style="border-radius:12px;display:block;cursor:pointer;border:2px solid var(--g200);"></canvas>
+      <div class="maze-side">
+        <div id="mazeAlgoLabel" style="font-size:15px;font-weight:800;color:#4338ca;margin-bottom:4px;">🔽 깊이 우선 탐색 (DFS)</div>
+        <div id="mazeDesc" style="font-size:13px;color:var(--g600);line-height:1.7;margin-bottom:12px;">한 방향으로 끝까지 탐색하다가 막히면 되돌아옵니다.</div>
+        <button class="sim-btn sim-btn-dfs" id="mazeNextBtn" onclick="mazeStep()">다음 단계 →</button>
+        <button class="sim-btn sim-btn-gray" onclick="mazeReset()">🔄 초기화</button>
+        <div class="sim-log" id="mazeLog">▶ "다음 단계" 버튼을 눌러 탐색을 시작하세요.</div>
+        <div style="margin-top:12px;font-size:12px;color:var(--g600);">
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;"><span style="display:inline-block;width:14px;height:14px;background:#4338ca;border-radius:3px;"></span> 현재 탐색 중</div>
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;"><span style="display:inline-block;width:14px;height:14px;background:#c7d2fe;border-radius:3px;"></span> 방문 완료</div>
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;"><span style="display:inline-block;width:14px;height:14px;background:#fef08a;border-radius:3px;"></span> 목표 지점</div>
+          <div style="display:flex;align-items:center;gap:6px;"><span style="display:inline-block;width:14px;height:14px;background:#1e1b4b;border-radius:3px;"></span> 벽</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 3: 트리 퀴즈 -->
+<section id="section3" class="c-sec">
+  <div class="sec-hdr">
+    <span class="sec-badge" style="background:linear-gradient(135deg,#4338ca,#0d9488);">🧩 학습 03</span>
+    <h2 class="sec-title">탐색 순서 퀴즈</h2>
+    <p class="sec-sub">아래 트리에서 DFS와 BFS의 탐색 순서를 직접 클릭해서 맞혀보세요!</p>
+  </div>
+
+  <div class="quiz-wrap">
+    <div class="quiz-title">📌 다음 트리를 탐색하는 순서를 클릭하세요</div>
+    <div class="quiz-sub">루트 노드 A에서 시작합니다. 오른쪽 자식보다 왼쪽 자식을 먼저 탐색합니다.</div>
+    <div class="quiz-tabs">
+      <button class="qtab active-dfs" id="qtabDFS" onclick="switchQuiz('dfs')">🔽 DFS 퀴즈</button>
+      <button class="qtab" id="qtabBFS" onclick="switchQuiz('bfs')">➡ BFS 퀴즈</button>
+    </div>
+    <div id="quizStatus" class="quiz-status" style="background:#eff6ff;color:#1e3a8a;">
+      🔽 DFS 탐색 순서대로 노드를 클릭하세요! &nbsp; <span id="quizProgress">0 / 7</span>
+    </div>
+    <canvas id="quizCanvas" width="500" height="220" style="width:100%;max-width:500px;border-radius:14px;display:block;cursor:pointer;background:#f8fafc;border:1.5px solid var(--g200);"></canvas>
+    <div class="qlog" id="quizLog">👆 A부터 시작하여 탐색 순서대로 노드를 클릭하세요.</div>
+
+    <!-- 시뮬레이션 (퀴즈 완료 후 표시) -->
+    <div id="simSection" style="display:none;margin-top:28px;border-top:2px solid var(--g200);padding-top:28px;">
+      <div style="font-size:16px;font-weight:800;color:var(--g900);margin-bottom:6px;">🎉 정답 완료! 탐색 과정을 애니메이션으로 확인하세요</div>
+      <div style="font-size:13px;color:var(--g600);margin-bottom:16px;">화살표와 숫자로 탐색 순서가 표시됩니다.</div>
+      <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;">
+        <button class="sim-btn sim-btn-dfs" id="simPlayBtn" onclick="simPlay()">▶ 애니메이션 재생</button>
+        <button class="sim-btn sim-btn-gray" onclick="simReset()">🔄 처음부터</button>
+        <button class="sim-btn" style="background:#f0fdf4;color:#065f46;border:2px solid #86efac;" onclick="switchQuiz(currentQuiz==='dfs'?'bfs':'dfs')">
+          <span id="switchBtnLabel">➡ BFS도 풀어보기</span>
+        </button>
+      </div>
+      <canvas id="simCanvas" width="500" height="220" style="width:100%;max-width:500px;border-radius:14px;display:block;background:#f8fafc;border:1.5px solid var(--g200);"></canvas>
+      <div class="qlog" id="simLog" style="margin-top:10px;"></div>
+    </div>
+  </div>
+
+  <!-- ── 목표 상태 탐색 활동 ── -->
+  <div class="quiz-wrap" style="margin-top:32px;" id="goalSection">
+    <div class="quiz-title">🎯 목표 상태를 찾을 때까지 탐색하기</div>
+    <div class="quiz-sub" style="margin-bottom:20px;">탐색은 목표 상태를 발견하면 멈춥니다. DFS와 BFS 중 어느 쪽이 더 효율적일까요?</div>
+
+    <!-- 트리 그림 -->
+    <div style="background:#f8fafc;border-radius:14px;border:1.5px solid var(--g200);padding:20px 24px;margin-bottom:24px;">
+      <div style="display:flex;gap:16px;font-size:12px;font-weight:700;margin-bottom:10px;">
+        <span style="color:#92400e;background:#fef3c7;padding:3px 10px;border-radius:100px;">초기 상태: A</span>
+        <span style="color:#14532d;background:#dcfce7;padding:3px 10px;border-radius:100px;">목표 상태: F ⭐</span>
+      </div>
+      <canvas id="goalTreeCanvas" width="320" height="210" style="display:block;border-radius:10px;"></canvas>
+    </div>
+
+    <!-- Q1: DFS 탐색 순서 클릭 퀴즈 -->
+    <div style="border:1.5px solid #c7d2fe;border-radius:14px;padding:20px 22px;margin-bottom:18px;background:#f5f3ff;">
+      <div style="font-size:13px;font-weight:800;color:#4338ca;margin-bottom:10px;">Q1. 🔽 DFS 탐색 순서를 클릭하세요 (목표 F에서 멈춤)</div>
+      <canvas id="gDfsCanvas" width="500" height="190" style="width:100%;max-width:500px;border-radius:10px;display:block;cursor:pointer;background:#fff;border:1px solid #c7d2fe;margin-bottom:10px;"></canvas>
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+        <div class="qlog" id="gDfsLog" style="flex:1;margin:0;">👆 A부터 순서대로 클릭 — F를 찾으면 탐색이 멈춥니다.</div>
+        <button onclick="gReset('dfs')" style="padding:6px 14px;border-radius:8px;border:1.5px solid #c7d2fe;background:#fff;color:#4338ca;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;">🔄 다시 시작</button>
+      </div>
+    </div>
+
+    <!-- Q2: BFS 탐색 순서 클릭 퀴즈 -->
+    <div style="border:1.5px solid #99f6e4;border-radius:14px;padding:20px 22px;margin-bottom:18px;background:#f0fdfa;">
+      <div style="font-size:13px;font-weight:800;color:#0d9488;margin-bottom:10px;">Q2. ➡ BFS 탐색 순서를 클릭하세요 (목표 F에서 멈춤)</div>
+      <canvas id="gBfsCanvas" width="500" height="190" style="width:100%;max-width:500px;border-radius:10px;display:block;cursor:pointer;background:#fff;border:1px solid #99f6e4;margin-bottom:10px;"></canvas>
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+        <div class="qlog" id="gBfsLog" style="flex:1;margin:0;">👆 A부터 순서대로 클릭 — F를 찾으면 탐색이 멈춥니다.</div>
+        <button onclick="gReset('bfs')" style="padding:6px 14px;border-radius:8px;border:1.5px solid #99f6e4;background:#fff;color:#0d9488;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;">🔄 다시 시작</button>
+      </div>
+    </div>
+
+    <!-- Q3: 효율성 선택 (Q1+Q2 완료 후 표시) -->
+    <div id="efficiencyQ" style="display:block;border:1.5px solid #fbbf24;border-radius:14px;padding:20px 22px;background:#fffbeb;">
+      <div style="font-size:13px;font-weight:800;color:#92400e;margin-bottom:14px;">Q3. 이 경우 어떤 탐색이 더 효율적인가요?</div>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:14px;">
+        <button class="sim-btn sim-btn-dfs" onclick="checkEfficiency('dfs')" id="effDfsBtn">🔽 깊이 우선 탐색 (5번)</button>
+        <button class="sim-btn sim-btn-bfs" style="background:#0d9488;" onclick="checkEfficiency('bfs')" id="effBfsBtn">➡ 너비 우선 탐색 (6번)</button>
+      </div>
+      <div id="effResult" style="font-size:13.5px;font-weight:600;min-height:30px;"></div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="ft-line"></div>
+  <strong>능동고등학교</strong> 인공지능 기초 학습 자료<br>
+  <span style="margin-top:7px;display:block;">made by 정보 교사 <strong>송세영</strong></span>
+</footer>
+
+<script>
+// ════════════════════════════════════════════════
+// MAZE SIMULATION
+// ════════════════════════════════════════════════
+// 7x7 maze: 0=path, 1=wall, S=start(0,0), G=goal(6,6)
+const MAZE = [
+  [0,0,1,0,0,0,1],
+  [1,0,1,0,1,0,1],
+  [1,0,0,0,1,0,0],
+  [1,1,1,0,1,1,0],
+  [0,0,0,0,0,0,0],
+  [0,1,1,1,1,0,1],
+  [0,0,0,0,1,0,0],
+];
+const ROWS=7, COLS=7;
+const GOAL_R=6, GOAL_C=6;
+
+let mazeMode='dfs'; // 'dfs' | 'bfs'
+let mazeVisited=[], mazeCurrent=null, mazeStack=[], mazeQueue=[];
+let mazePath=[], mazeDone=false, mazeStepNum=0;
+let mazeOrder=[];
+
+function switchMaze(mode){
+  mazeMode=mode;
+  document.getElementById('tabDFS').className='maze-tab'+(mode==='dfs'?' active-dfs':'');
+  document.getElementById('tabBFS').className='maze-tab'+(mode==='bfs'?' active-bfs':'');
+  const lbl=document.getElementById('mazeAlgoLabel');
+  const desc=document.getElementById('mazeDesc');
+  const btn=document.getElementById('mazeNextBtn');
+  if(mode==='dfs'){
+    lbl.style.color='#4338ca'; lbl.textContent='🔽 깊이 우선 탐색 (DFS)';
+    desc.textContent='한 방향으로 끝까지 탐색하다가 막히면 되돌아옵니다.';
+    btn.className='sim-btn sim-btn-dfs';
+  } else {
+    lbl.style.color='#0d9488'; lbl.textContent='➡ 너비 우선 탐색 (BFS)';
+    desc.textContent='현재 위치에서 연결된 모든 칸을 먼저 확인한 후 다음 레벨로 이동합니다.';
+    btn.className='sim-btn sim-btn-bfs';
+  }
+  mazeReset();
+}
+
+function mazeReset(){
+  mazeVisited=Array.from({length:ROWS},()=>Array(COLS).fill(false));
+  mazeCurrent=null; mazeDone=false; mazeStepNum=0; mazeOrder=[];
+  if(mazeMode==='dfs'){
+    mazeStack=[[0,0]];
+  } else {
+    mazeQueue=[[0,0]];
+    mazeVisited[0][0]=true;
+  }
+  document.getElementById('mazeLog').innerHTML='▶ "다음 단계" 버튼을 눌러 탐색을 시작하세요.';
+  mazeDraw();
+}
+
+function mazeNeighbors(r,c){
+  return [[r-1,c],[r,c+1],[r+1,c],[r,c-1]].filter(([nr,nc])=>nr>=0&&nr<ROWS&&nc>=0&&nc<COLS&&MAZE[nr][nc]===0);
+}
+
+function mazeStep(){
+  if(mazeDone) return;
+  const log=document.getElementById('mazeLog');
+
+  if(mazeMode==='dfs'){
+    if(!mazeStack.length){log.innerHTML='❌ 더 이상 탐색할 곳이 없습니다.';return;}
+    const [r,c]=mazeStack[mazeStack.length-1];
+    if(mazeVisited[r][c]){mazeStack.pop();mazeStep();return;}
+    mazeVisited[r][c]=true;
+    mazeCurrent=[r,c]; mazeStepNum++;
+    mazeOrder.push([r,c]);
+    const nbrs=mazeNeighbors(r,c).filter(([nr,nc])=>!mazeVisited[nr][nc]);
+    // push in reverse so left/up come first
+    [...nbrs].reverse().forEach(n=>mazeStack.push(n));
+    if(r===GOAL_R&&c===GOAL_C){mazeDone=true;log.innerHTML=`🎉 목표 지점 도달! 총 ${mazeStepNum}칸 탐색했습니다.`;mazeDraw();return;}
+    log.innerHTML=`📍 (${r},${c}) 탐색 — ${mazeStepNum}번째 방문. 스택에 ${mazeStack.filter((v,i,a)=>JSON.stringify(a.slice(0,i+1)).indexOf(JSON.stringify(v))===JSON.stringify(a.slice(0,i+1)).length-JSON.stringify(v).length-1).length}개 대기 중`;
+  } else {
+    if(!mazeQueue.length){log.innerHTML='❌ 더 이상 탐색할 곳이 없습니다.';return;}
+    const [r,c]=mazeQueue.shift();
+    mazeCurrent=[r,c]; mazeStepNum++;
+    mazeOrder.push([r,c]);
+    const nbrs=mazeNeighbors(r,c).filter(([nr,nc])=>!mazeVisited[nr][nc]);
+    nbrs.forEach(([nr,nc])=>{mazeVisited[nr][nc]=true;mazeQueue.push([nr,nc]);});
+    if(r===GOAL_R&&c===GOAL_C){mazeDone=true;log.innerHTML=`🎉 목표 지점 도달! 총 ${mazeStepNum}칸 탐색했습니다.`;mazeDraw();return;}
+    log.innerHTML=`📍 (${r},${c}) 탐색 — ${mazeStepNum}번째 방문. 큐에 ${mazeQueue.length}개 대기 중`;
+  }
+  mazeDraw();
+}
+
+function mazeDraw(){
+  const cv=document.getElementById('mazeCanvas');
+  const ctx=cv.getContext('2d');
+  const CW=cv.width/COLS, CH=cv.height/ROWS;
+  ctx.clearRect(0,0,cv.width,cv.height);
+  for(let r=0;r<ROWS;r++){
+    for(let c=0;c<COLS;c++){
+      const x=c*CW, y=r*CH;
+      if(MAZE[r][c]===1){ctx.fillStyle='#1e1b4b';ctx.fillRect(x,y,CW,CH);continue;}
+      const isCur=mazeCurrent&&mazeCurrent[0]===r&&mazeCurrent[1]===c;
+      const isGoal=r===GOAL_R&&c===GOAL_C;
+      const isStart=r===0&&c===0;
+      const isVisited=mazeVisited[r][c];
+      if(isGoal)        ctx.fillStyle='#fef08a';
+      else if(isCur)    ctx.fillStyle= mazeMode==='dfs'?'#4338ca':'#0d9488';
+      else if(isVisited)ctx.fillStyle= mazeMode==='dfs'?'#c7d2fe':'#99f6e4';
+      else              ctx.fillStyle='#f8fafc';
+      ctx.fillRect(x+1,y+1,CW-2,CH-2);
+      // grid line
+      ctx.strokeStyle='#e5e7eb'; ctx.lineWidth=1;
+      ctx.strokeRect(x,y,CW,CH);
+      // labels
+      if(isStart){ctx.fillStyle='#1e1b4b';ctx.font=`bold ${CW*.28}px sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('S',x+CW/2,y+CH/2);}
+      if(isGoal) {ctx.fillStyle='#854d0e';ctx.font=`bold ${CW*.28}px sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('G',x+CW/2,y+CH/2);}
+      // step number
+      const idx=mazeOrder.findIndex(([or,oc])=>or===r&&oc===c);
+      if(idx>=0&&!isStart&&!isGoal){
+        ctx.fillStyle=isCur?'#fff': mazeMode==='dfs'?'#4338ca':'#0d9488';
+        ctx.font=`bold ${CW*.24}px sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';
+        ctx.fillText(idx+1,x+CW/2,y+CH/2);
+      }
+    }
+  }
+}
+
+// ════════════════════════════════════════════════
+// TREE QUIZ + SIMULATION
+// ════════════════════════════════════════════════
+// Tree: A → {B→{D,E}, C→{F,G}}
+// DFS order (left first): A,B,D,E,C,F,G
+// BFS order (level):      A,B,C,D,E,F,G
+
+const TREE_NODES = [
+  {id:'A', x:.50, y:.12, children:['B','C'], parent:null, level:1},
+  {id:'B', x:.28, y:.42, children:['D','E'], parent:'A', level:2},
+  {id:'C', x:.72, y:.42, children:['F','G'], parent:'A', level:2},
+  {id:'D', x:.16, y:.78, children:[], parent:'B', level:3},
+  {id:'E', x:.40, y:.78, children:[], parent:'B', level:3},
+  {id:'F', x:.60, y:.78, children:[], parent:'C', level:3},
+  {id:'G', x:.84, y:.78, children:[], parent:'C', level:3},
+];
+const DFS_ORDER = ['A','B','D','E','C','F','G'];
+const BFS_ORDER = ['A','B','C','D','E','F','G'];
+
+let currentQuiz='dfs';
+let quizClicked=[], quizDone=false;
+let simStep=0, simTimer=null, simNodes=[], simArrows=[];
+
+function switchQuiz(mode){
+  currentQuiz=mode;
+  quizClicked=[]; quizDone=false;
+  simStep=0; simNodes=[]; simArrows=[];
+  clearInterval(simTimer);
+  document.getElementById('simSection').style.display='none';
+  document.getElementById('qtabDFS').className='qtab'+(mode==='dfs'?' active-dfs':'');
+  document.getElementById('qtabBFS').className='qtab'+(mode==='bfs'?' active-bfs':'');
+  const status=document.getElementById('quizStatus');
+  if(mode==='dfs'){
+    status.style.background='#eff6ff'; status.style.color='#1e3a8a';
+    status.innerHTML='🔽 DFS 탐색 순서대로 노드를 클릭하세요! &nbsp;<span id="quizProgress">0 / 7</span>';
+  } else {
+    status.style.background='#f0fdfa'; status.style.color='#065f46';
+    status.innerHTML='➡ BFS 탐색 순서대로 노드를 클릭하세요! &nbsp;<span id="quizProgress">0 / 7</span>';
+  }
+  document.getElementById('switchBtnLabel').textContent = mode==='dfs'?'➡ BFS도 풀어보기':'🔽 DFS도 풀어보기';
+  document.getElementById('quizLog').innerHTML='👆 A부터 시작하여 탐색 순서대로 노드를 클릭하세요.';
+  drawQuizTree([],[]);
+}
+
+const NR=22; // node radius for quiz canvas
+
+function nodeXY(node, cv){
+  return {x: node.x*cv.width, y: node.y*cv.height};
+}
+
+function drawQuizTree(highlighted, arrows, flash=null, flashOk=true){
+  const cv=document.getElementById('quizCanvas');
+  const ctx=cv.getContext('2d');
+  ctx.clearRect(0,0,cv.width,cv.height);
+  const order = currentQuiz==='dfs'? DFS_ORDER : BFS_ORDER;
+
+  // Draw edges first
+  TREE_NODES.forEach(nd=>{
+    nd.children.forEach(cid=>{
+      const child=TREE_NODES.find(n=>n.id===cid);
+      const p=nodeXY(nd,cv), c=nodeXY(child,cv);
+      ctx.save();
+      ctx.strokeStyle='#cbd5e1'; ctx.lineWidth=2.5;
+      ctx.beginPath(); ctx.moveTo(p.x,p.y); ctx.lineTo(c.x,c.y); ctx.stroke();
+      ctx.restore();
+    });
+  });
+
+  // Draw arrows (animated sim)
+  arrows.forEach(({from,to,num})=>{
+    const fn=TREE_NODES.find(n=>n.id===from), tn=TREE_NODES.find(n=>n.id===to);
+    const fp=nodeXY(fn,cv), tp=nodeXY(tn,cv);
+    drawArrow(ctx, fp.x, fp.y, tp.x, tp.y, currentQuiz==='dfs'?'#4338ca':'#0d9488', num);
+  });
+
+  // Level labels on the side
+  [1,2,3].forEach(lv=>{
+    const nodes=TREE_NODES.filter(n=>n.level===lv);
+    if(!nodes.length) return;
+    const avgY=nodes.reduce((s,n)=>s+nodeXY(n,cv).y,0)/nodes.length;
+    ctx.save();
+    ctx.font='bold 11px sans-serif'; ctx.fillStyle='#94a3b8'; ctx.textAlign='left'; ctx.textBaseline='middle';
+    ctx.fillText(`level ${lv}`, 4, avgY);
+    ctx.restore();
+  });
+
+  // Draw nodes
+  TREE_NODES.forEach(nd=>{
+    const p=nodeXY(nd,cv);
+    const idx=highlighted.indexOf(nd.id);
+    const isFlash=nd.id===flash;
+    const isCorrect=highlighted.includes(nd.id);
+
+    // Determine color
+    let fill='#fff', stroke='#94a3b8', sw=2, textColor='#1e293b';
+    if(isFlash && !flashOk){fill='#fee2e2';stroke='#ef4444';sw=3;textColor='#b91c1c';}
+    else if(isFlash && flashOk){fill='#dcfce7';stroke='#22c55e';sw=3;textColor='#15803d';}
+    else if(isCorrect){
+      fill=currentQuiz==='dfs'?'#4338ca':'#0d9488';
+      stroke=fill; sw=0; textColor='#fff';
+    }
+
+    ctx.save();
+    ctx.shadowColor='rgba(0,0,0,.12)'; ctx.shadowBlur=8;
+    ctx.beginPath(); ctx.arc(p.x,p.y,NR,0,Math.PI*2);
+    ctx.fillStyle=fill; ctx.fill();
+    if(sw>0){ctx.strokeStyle=stroke;ctx.lineWidth=sw;ctx.stroke();}
+    ctx.shadowBlur=0;
+
+    // Visit order number badge
+    if(idx>=0){
+      ctx.fillStyle='rgba(255,255,255,.25)';
+      ctx.beginPath(); ctx.arc(p.x+NR-7,p.y-NR+7,9,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle='#fff'; ctx.font='bold 9px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillText(idx+1, p.x+NR-7, p.y-NR+7);
+    }
+
+    // Node label
+    ctx.fillStyle=textColor; ctx.font='bold 15px Noto Sans KR,sans-serif';
+    ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText(nd.id, p.x, p.y);
+    ctx.restore();
+  });
+}
+
+function drawArrow(ctx, x1,y1,x2,y2, color, label){
+  const angle=Math.atan2(y2-y1,x2-x1);
+  const dist=Math.hypot(x2-x1,y2-y1);
+  const sx=x1+Math.cos(angle)*(NR+2), sy=y1+Math.sin(angle)*(NR+2);
+  const ex=x2-Math.cos(angle)*(NR+4), ey=y2-Math.sin(angle)*(NR+4);
+
+  // Slightly curved offset
+  const mx=(sx+ex)/2 + Math.sin(angle)*14, my=(sy+ey)/2 - Math.cos(angle)*14;
+
+  ctx.save();
+  ctx.strokeStyle=color; ctx.lineWidth=2.5; ctx.lineCap='round';
+  ctx.beginPath(); ctx.moveTo(sx,sy); ctx.quadraticCurveTo(mx,my,ex,ey); ctx.stroke();
+  // Arrowhead
+  const headAngle=Math.atan2(ey-my,ex-mx);
+  ctx.fillStyle=color;
+  ctx.beginPath();
+  ctx.moveTo(ex,ey);
+  ctx.lineTo(ex-11*Math.cos(headAngle-0.4),ey-11*Math.sin(headAngle-0.4));
+  ctx.lineTo(ex-11*Math.cos(headAngle+0.4),ey-11*Math.sin(headAngle+0.4));
+  ctx.closePath(); ctx.fill();
+  // Number label on arrow
+  if(label!==undefined){
+    ctx.fillStyle=color; ctx.font='bold 11px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText(label, mx, my);
+  }
+  ctx.restore();
+}
+
+// Quiz canvas click
+document.getElementById('quizCanvas').addEventListener('click', function(e){
+  if(quizDone) return;
+  const cv=this;
+  const rect=cv.getBoundingClientRect();
+  const mx=(e.clientX-rect.left)*(cv.width/rect.width);
+  const my=(e.clientY-rect.top)*(cv.height/rect.height);
+
+  let clicked=null;
+  TREE_NODES.forEach(nd=>{
+    const p=nodeXY(nd,cv);
+    if(Math.hypot(mx-p.x,my-p.y)<NR+4) clicked=nd;
+  });
+  if(!clicked) return;
+
+  const order=currentQuiz==='dfs'? DFS_ORDER : BFS_ORDER;
+  const expected=order[quizClicked.length];
+  const log=document.getElementById('quizLog');
+
+  if(quizClicked.includes(clicked.id)){
+    log.innerHTML=`💬 <strong>${clicked.id}</strong>는 이미 방문했습니다!`;
+    flashNode(clicked.id, false);
+    return;
+  }
+  if(clicked.id !== expected){
+    log.innerHTML=`❌ 틀렸습니다! 지금은 <strong>${expected}</strong>를 클릭해야 합니다.`;
+    flashNode(clicked.id, false);
+    return;
+  }
+
+  quizClicked.push(clicked.id);
+  drawQuizTree(quizClicked, [], clicked.id, true);
+  document.getElementById('quizProgress').textContent=`${quizClicked.length} / 7`;
+
+  if(quizClicked.length === order.length){
+    quizDone=true;
+    const status=document.getElementById('quizStatus');
+    status.style.background='#dcfce7'; status.style.color='#15803d';
+    status.innerHTML=`🎉 정답! 탐색 순서: ${order.join(' → ')}`;
+    log.innerHTML=`✅ 완벽합니다! 아래에서 애니메이션으로 탐색 과정을 확인해보세요.`;
+    document.getElementById('simSection').style.display='block';
+    drawSimTree([],[]);
+  } else {
+    const next=order[quizClicked.length];
+    log.innerHTML=`✅ <strong>${clicked.id}</strong> 정답! 다음은 <strong>${next}</strong>를 클릭하세요.`;
+  }
+});
+
+function flashNode(id, ok){
+  const cv=document.getElementById('quizCanvas');
+  drawQuizTree(quizClicked, [], id, ok);
+  setTimeout(()=>drawQuizTree(quizClicked,[]),600);
+}
+
+// ── Simulation (after quiz done) ──
+function drawSimTree(visibleNodes, arrows){
+  const cv=document.getElementById('simCanvas');
+  const ctx=cv.getContext('2d');
+  ctx.clearRect(0,0,cv.width,cv.height);
+
+  // Edges
+  TREE_NODES.forEach(nd=>{
+    nd.children.forEach(cid=>{
+      const child=TREE_NODES.find(n=>n.id===cid);
+      const p=nodeXY(nd,cv), c=nodeXY(child,cv);
+      ctx.save(); ctx.strokeStyle='#cbd5e1'; ctx.lineWidth=2.5;
+      ctx.beginPath(); ctx.moveTo(p.x,p.y); ctx.lineTo(c.x,c.y); ctx.stroke(); ctx.restore();
+    });
+  });
+
+  // Arrows
+  arrows.forEach(({from,to,num})=>{
+    const fn=TREE_NODES.find(n=>n.id===from), tn=TREE_NODES.find(n=>n.id===to);
+    const fp=nodeXY(fn,cv), tp=nodeXY(tn,cv);
+    drawArrow(ctx, fp.x,fp.y,tp.x,tp.y, currentQuiz==='dfs'?'#4338ca':'#0d9488', num);
+  });
+
+  // Level labels
+  [1,2,3].forEach(lv=>{
+    const nodes=TREE_NODES.filter(n=>n.level===lv);
+    if(!nodes.length) return;
+    const avgY=nodes.reduce((s,n)=>s+nodeXY(n,cv).y,0)/nodes.length;
+    ctx.save(); ctx.font='bold 11px sans-serif'; ctx.fillStyle='#94a3b8';
+    ctx.textAlign='left'; ctx.textBaseline='middle';
+    ctx.fillText(`level ${lv}`, 4, avgY); ctx.restore();
+  });
+
+  // Nodes
+  TREE_NODES.forEach(nd=>{
+    const p=nodeXY(nd,cv);
+    const idx=visibleNodes.indexOf(nd.id);
+    const isVisible=idx>=0;
+    const isCurrent=idx===visibleNodes.length-1;
+
+    let fill='#fff', stroke='#cbd5e1', sw=2, tc='#94a3b8';
+    if(isCurrent){fill=currentQuiz==='dfs'?'#4338ca':'#0d9488';stroke=fill;sw=0;tc='#fff';}
+    else if(isVisible){fill=currentQuiz==='dfs'?'#c7d2fe':'#99f6e4';stroke=currentQuiz==='dfs'?'#818cf8':'#2dd4bf';sw=2;tc=currentQuiz==='dfs'?'#312e81':'#065f46';}
+
+    ctx.save();
+    ctx.shadowColor='rgba(0,0,0,.1)'; ctx.shadowBlur=6;
+    ctx.beginPath(); ctx.arc(p.x,p.y,NR,0,Math.PI*2);
+    ctx.fillStyle=fill; ctx.fill();
+    if(sw>0){ctx.strokeStyle=stroke;ctx.lineWidth=sw;ctx.stroke();}
+    ctx.shadowBlur=0;
+
+    if(isVisible){
+      ctx.fillStyle='rgba(0,0,0,.12)';
+      ctx.beginPath(); ctx.arc(p.x+NR-7,p.y-NR+7,9,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle=isCurrent?'#fff':'#1e293b';
+      ctx.font='bold 9px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillText(idx+1, p.x+NR-7, p.y-NR+7);
+    }
+
+    ctx.fillStyle=tc; ctx.font=`bold 15px Noto Sans KR,sans-serif`;
+    ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText(nd.id, p.x, p.y);
+    ctx.restore();
+  });
+}
+
+function simPlay(){
+  if(simTimer) clearInterval(simTimer);
+  simStep=0; simNodes=[]; simArrows=[];
+  document.getElementById('simPlayBtn').disabled=true;
+  const order=currentQuiz==='dfs'? DFS_ORDER : BFS_ORDER;
+  const log=document.getElementById('simLog');
+
+  // DFS: parent→child 화살표 / BFS: 이전 탐색 노드→현재 노드 (가로 흐름)
+  function getArrow(nodeId, stepIdx){
+    if(currentQuiz==='dfs'){
+      const nd=TREE_NODES.find(n=>n.id===nodeId);
+      if(!nd||!nd.parent) return null;
+      return {from:nd.parent, to:nd.id, num:stepIdx+1};
+    } else {
+      if(stepIdx===0) return null; // A는 이전 없음
+      return {from:order[stepIdx-1], to:nodeId, num:stepIdx+1};
+    }
+  }
+
+  simTimer=setInterval(()=>{
+    if(simStep>=order.length){
+      clearInterval(simTimer);
+      document.getElementById('simPlayBtn').disabled=false;
+      log.innerHTML=`🎉 탐색 완료! 순서: <strong>${order.join(' → ')}</strong>`;
+      return;
+    }
+    const cur=order[simStep];
+    simNodes.push(cur);
+    const arrow=getArrow(cur, simStep);
+    if(arrow) simArrows.push(arrow);
+    drawSimTree(simNodes, simArrows);
+    const nd=TREE_NODES.find(n=>n.id===cur);
+    log.innerHTML=`${simStep+1}번째: <strong>${cur}</strong> 탐색 (레벨 ${nd.level})`;
+    simStep++;
+  }, 900);
+}
+
+function simReset(){
+  clearInterval(simTimer);
+  simStep=0; simNodes=[]; simArrows=[];
+  document.getElementById('simPlayBtn').disabled=false;
+  document.getElementById('simLog').innerHTML='';
+  drawSimTree([],[]);
+}
+
+// ════════════════════════════════════════════════
+// 목표 상태 탐색 활동 (A→{B→{D,E,F}, C→{G,H}})
+// ════════════════════════════════════════════════
+const GOAL_NODES = [
+  {id:'A', x:.50, y:.10, parent:null,   children:['B','C']},
+  {id:'B', x:.28, y:.44, parent:'A',    children:['D','E','F']},
+  {id:'C', x:.72, y:.44, parent:'A',    children:['G','H']},
+  {id:'D', x:.12, y:.82, parent:'B',    children:[]},
+  {id:'E', x:.32, y:.82, parent:'B',    children:[]},
+  {id:'F', x:.52, y:.82, parent:'B',    children:[], isGoal:true},
+  {id:'G', x:.70, y:.82, parent:'C',    children:[]},
+  {id:'H', x:.88, y:.82, parent:'C',    children:[]},
+];
+const G_DFS_ORDER = ['A','B','D','E','F']; // stops at F
+const G_BFS_ORDER = ['A','B','C','D','E','F']; // stops at F
+
+let gDfsClicked=[], gBfsClicked=[], gDfsDone=false, gBfsDone=false;
+
+function gNodeXY(nd, cv){ return {x:nd.x*cv.width, y:nd.y*cv.height}; }
+const GNR=20;
+
+function drawGoalTree(cvId, highlighted=[], mode='neutral', flash=null, flashOk=true, stopAt=null){
+  const cv=document.getElementById(cvId);
+  if(!cv) return;
+  const ctx=cv.getContext('2d');
+  ctx.clearRect(0,0,cv.width,cv.height);
+  ctx.fillStyle='#fff'; ctx.fillRect(0,0,cv.width,cv.height);
+
+  // Edges
+  GOAL_NODES.forEach(nd=>{
+    nd.children.forEach(cid=>{
+      const ch=GOAL_NODES.find(n=>n.id===cid);
+      const p=gNodeXY(nd,cv), c=gNodeXY(ch,cv);
+      ctx.save(); ctx.strokeStyle='#cbd5e1'; ctx.lineWidth=2;
+      ctx.beginPath(); ctx.moveTo(p.x,p.y); ctx.lineTo(c.x,c.y); ctx.stroke(); ctx.restore();
+    });
+  });
+
+  // Nodes
+  GOAL_NODES.forEach(nd=>{
+    const p=gNodeXY(nd,cv);
+    const idx=highlighted.indexOf(nd.id);
+    const isVisited=idx>=0;
+    const isCurrent=highlighted.length>0 && nd.id===highlighted[highlighted.length-1];
+    const isGoal=nd.isGoal;
+    const isFlash=nd.id===flash;
+
+    let fill='#fff', stroke='#94a3b8', sw=2, tc='#374151';
+    if(isFlash && flashOk)  {fill='#dcfce7';stroke='#22c55e';sw=3;tc='#15803d';}
+    else if(isFlash)        {fill='#fee2e2';stroke='#ef4444';sw=3;tc='#b91c1c';}
+    else if(isGoal && isVisited){fill='#fef08a';stroke='#eab308';sw=3;tc='#854d0e';}
+    else if(isCurrent)      {fill=mode==='dfs'?'#4338ca':'#0d9488';stroke='transparent';sw=0;tc='#fff';}
+    else if(isVisited)      {fill=mode==='dfs'?'#c7d2fe':'#99f6e4';stroke=mode==='dfs'?'#818cf8':'#2dd4bf';sw=2;tc=mode==='dfs'?'#312e81':'#065f46';}
+    else if(isGoal)         {fill='#fefce8';stroke='#fbbf24';sw=2;tc='#92400e';}
+
+    // Dim nodes after goal is found
+    if(stopAt && !isVisited && nd.id!==stopAt) ctx.globalAlpha=0.35;
+
+    ctx.save();
+    ctx.shadowColor='rgba(0,0,0,.10)'; ctx.shadowBlur=6;
+    ctx.beginPath(); ctx.arc(p.x,p.y,GNR,0,Math.PI*2);
+    ctx.fillStyle=fill; ctx.fill();
+    if(sw>0){ctx.strokeStyle=stroke;ctx.lineWidth=sw;ctx.stroke();}
+    ctx.shadowBlur=0;
+
+    // visit order badge
+    if(isVisited){
+      ctx.fillStyle='rgba(0,0,0,.13)';
+      ctx.beginPath(); ctx.arc(p.x+GNR-6,p.y-GNR+6,8,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle=isCurrent?'#fff':'#1e293b';
+      ctx.font='bold 8px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillText(idx+1, p.x+GNR-6, p.y-GNR+6);
+    }
+
+    ctx.fillStyle=tc; ctx.font='bold 13px Noto Sans KR,sans-serif';
+    ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText(nd.id, p.x, p.y);
+    ctx.restore();
+    ctx.globalAlpha=1;
+
+    // ⭐ goal label
+    if(isGoal){
+      ctx.save(); ctx.font='10px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='top';
+      ctx.fillText('⭐목표', p.x, p.y+GNR+3); ctx.restore();
+    }
+  });
+
+  // 초기/목표 상태 label on A
+  const aNode=GOAL_NODES[0];
+  const ap=gNodeXY(aNode,cv);
+  ctx.save(); ctx.font='bold 9px sans-serif'; ctx.fillStyle='#92400e'; ctx.textAlign='center'; ctx.textBaseline='bottom';
+  ctx.fillText('초기 상태', ap.x, ap.y-GNR-3); ctx.restore();
+}
+
+function gHandleClick(cvId, mode){
+  const cv=document.getElementById(cvId);
+  const isDfs=mode==='dfs';
+  const order=isDfs?G_DFS_ORDER:G_BFS_ORDER;
+  const clicked=isDfs?gDfsClicked:gBfsClicked;
+  const done=isDfs?gDfsDone:gBfsDone;
+  if(done) return;
+
+  return function(e){
+    const rect=cv.getBoundingClientRect();
+    const mx=(e.clientX-rect.left)*(cv.width/rect.width);
+    const my=(e.clientY-rect.top)*(cv.height/rect.height);
+    let hit=null;
+    GOAL_NODES.forEach(nd=>{
+      const p=gNodeXY(nd,cv);
+      if(Math.hypot(mx-p.x,my-p.y)<GNR+5) hit=nd;
+    });
+    if(!hit) return;
+    const logId=isDfs?'gDfsLog':'gBfsLog';
+    const log=document.getElementById(logId);
+    const expected=order[clicked.length];
+
+    if(clicked.includes(hit.id)){
+      log.innerHTML=`💬 <strong>${hit.id}</strong>는 이미 탐색했습니다.`; return;
+    }
+    if(hit.id!==expected){
+      log.innerHTML=`❌ 틀렸습니다! 지금은 <strong>${expected}</strong>를 클릭해야 합니다.`;
+      drawGoalTree(cvId, clicked, mode, hit.id, false); setTimeout(()=>drawGoalTree(cvId,clicked,mode),600); return;
+    }
+
+    clicked.push(hit.id);
+    const isFinal=clicked.length===order.length;
+    drawGoalTree(cvId, clicked, mode, hit.id, true, isFinal?'F':null);
+    setTimeout(()=>drawGoalTree(cvId,clicked,mode,null,true,isFinal?'F':null),500);
+
+    if(isFinal){
+      if(isDfs) gDfsDone=true; else gBfsDone=true;
+      log.innerHTML=`🎉 <strong>F(목표 상태) 발견!</strong> 탐색 순서: ${order.join(' → ')}. 총 <strong>${order.length}번</strong> 탐색했습니다.`;
+      if(gDfsDone && gBfsDone) document.getElementById('efficiencyQ').style.display='block';
+    } else {
+      const next=order[clicked.length];
+      log.innerHTML=`✅ <strong>${hit.id}</strong> 탐색 완료. 다음은 <strong>${next}</strong>를 클릭하세요.`;
+    }
+  };
+}
+
+function checkEfficiency(choice){
+  const res=document.getElementById('effResult');
+  document.getElementById('effDfsBtn').style.opacity='0.5';
+  document.getElementById('effBfsBtn').style.opacity='0.5';
+  if(choice==='dfs'){
+    document.getElementById('effDfsBtn').style.opacity='1';
+    document.getElementById('effDfsBtn').style.outline='3px solid #fbbf24';
+    res.innerHTML=`✅ 정답! 이 경우 DFS가 <strong>5번</strong> 만에 목표를 찾아 BFS(6번)보다 효율적입니다.<br><span style="color:#6b7280;font-size:12.5px;">탐색 알고리즘의 효율은 어떠한 순서로 데이터를 검색하는지에 따라 결정됩니다.</span>`;
+    res.style.color='#15803d';
+  } else {
+    document.getElementById('effBfsBtn').style.opacity='1';
+    document.getElementById('effBfsBtn').style.outline='3px solid #fbbf24';
+    res.innerHTML=`❌ 오답! 이 경우 DFS가 <strong>5번</strong>, BFS가 <strong>6번</strong> 탐색했습니다. DFS가 더 적은 횟수로 목표를 찾았습니다.<br><span style="color:#6b7280;font-size:12.5px;">탐색 알고리즘의 효율은 어떠한 순서로 데이터를 검색하는지에 따라 결정됩니다.</span>`;
+    res.style.color='#b91c1c';
+  }
+}
+
+// Init goal canvases
+window.addEventListener('DOMContentLoaded',()=>{
+  mazeReset();
+  switchQuiz('dfs');
+  drawGoalTree('goalTreeCanvas',[]);
+  drawGoalTree('gDfsCanvas',[]);
+  drawGoalTree('gBfsCanvas',[]);
+
+  // bind clicks
+  const dfsHandler=gHandleClick('gDfsCanvas','dfs');
+  const bfsHandler=gHandleClick('gBfsCanvas','bfs');
+  document.getElementById('gDfsCanvas').addEventListener('click', e=>{
+    const isDfs=true;
+    const order=G_DFS_ORDER;
+    if(gDfsDone) return;
+    const cv=document.getElementById('gDfsCanvas');
+    const rect=cv.getBoundingClientRect();
+    const mx=(e.clientX-rect.left)*(cv.width/rect.width);
+    const my=(e.clientY-rect.top)*(cv.height/rect.height);
+    let hit=null;
+    GOAL_NODES.forEach(nd=>{const p=gNodeXY(nd,cv);if(Math.hypot(mx-p.x,my-p.y)<GNR+5) hit=nd;});
+    if(!hit) return;
+    const log=document.getElementById('gDfsLog');
+    const expected=order[gDfsClicked.length];
+    if(gDfsClicked.includes(hit.id)){log.innerHTML=`💬 <strong>${hit.id}</strong>는 이미 탐색했습니다.`;return;}
+    if(hit.id!==expected){
+      log.innerHTML=`❌ 틀렸습니다!`;
+      drawGoalTree('gDfsCanvas',gDfsClicked,'dfs',hit.id,false);
+      setTimeout(()=>drawGoalTree('gDfsCanvas',gDfsClicked,'dfs'),600);return;
+    }
+    gDfsClicked.push(hit.id);
+    const isFinal=gDfsClicked.length===order.length;
+    drawGoalTree('gDfsCanvas',gDfsClicked,'dfs',hit.id,true,isFinal?'F':null);
+    setTimeout(()=>drawGoalTree('gDfsCanvas',gDfsClicked,'dfs',null,true,isFinal?'F':null),500);
+    if(isFinal){
+      gDfsDone=true;
+      log.innerHTML=`🎉 정답! F(목표 상태) 발견! 총 <strong>${order.length}번</strong> 탐색했습니다.`;
+      if(gDfsDone&&gBfsDone) document.getElementById('efficiencyQ').style.display='block';
+    } else {
+      log.innerHTML=`✅ <strong>${hit.id}</strong> 정답!`;
+    }
+  });
+
+  document.getElementById('gBfsCanvas').addEventListener('click', e=>{
+    const order=G_BFS_ORDER;
+    if(gBfsDone) return;
+    const cv=document.getElementById('gBfsCanvas');
+    const rect=cv.getBoundingClientRect();
+    const mx=(e.clientX-rect.left)*(cv.width/rect.width);
+    const my=(e.clientY-rect.top)*(cv.height/rect.height);
+    let hit=null;
+    GOAL_NODES.forEach(nd=>{const p=gNodeXY(nd,cv);if(Math.hypot(mx-p.x,my-p.y)<GNR+5) hit=nd;});
+    if(!hit) return;
+    const log=document.getElementById('gBfsLog');
+    const expected=order[gBfsClicked.length];
+    if(gBfsClicked.includes(hit.id)){log.innerHTML=`💬 <strong>${hit.id}</strong>는 이미 탐색했습니다.`;return;}
+    if(hit.id!==expected){
+      log.innerHTML=`❌ 틀렸습니다!`;
+      drawGoalTree('gBfsCanvas',gBfsClicked,'bfs',hit.id,false);
+      setTimeout(()=>drawGoalTree('gBfsCanvas',gBfsClicked,'bfs'),600);return;
+    }
+    gBfsClicked.push(hit.id);
+    const isFinal=gBfsClicked.length===order.length;
+    drawGoalTree('gBfsCanvas',gBfsClicked,'bfs',hit.id,true,isFinal?'F':null);
+    setTimeout(()=>drawGoalTree('gBfsCanvas',gBfsClicked,'bfs',null,true,isFinal?'F':null),500);
+    if(isFinal){
+      gBfsDone=true;
+      log.innerHTML=`🎉 정답! F(목표 상태) 발견! 총 <strong>${order.length}번</strong> 탐색했습니다.`;
+      if(gDfsDone&&gBfsDone) document.getElementById('efficiencyQ').style.display='block';
+    } else {
+      log.innerHTML=`✅ <strong>${hit.id}</strong> 정답!`;
+    }
+  });
+});
+
+function gReset(mode){
+  if(mode==='dfs'){
+    gDfsClicked=[]; gDfsDone=false;
+    document.getElementById('gDfsLog').innerHTML='👆 A부터 순서대로 클릭 — F를 찾으면 탐색이 멈춥니다.';
+    drawGoalTree('gDfsCanvas',[]);
+  } else {
+    gBfsClicked=[]; gBfsDone=false;
+    document.getElementById('gBfsLog').innerHTML='👆 A부터 순서대로 클릭 — F를 찾으면 탐색이 멈춥니다.';
+    drawGoalTree('gBfsCanvas',[]);
+  }
+  document.getElementById('efficiencyQ').style.display='none';
+  document.getElementById('effResult').innerHTML='';
+  document.getElementById('effDfsBtn').style.opacity='1';
+  document.getElementById('effBfsBtn').style.opacity='1';
+  document.getElementById('effDfsBtn').style.outline='none';
+  document.getElementById('effBfsBtn').style.outline='none';
+}
+</script>
+</body>
+</html>
