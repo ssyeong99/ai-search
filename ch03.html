@@ -207,7 +207,7 @@ footer strong{color:rgba(255,255,255,.9);}
     <div id="quizStatus" class="quiz-status" style="background:#eff6ff;color:#1e3a8a;">
       🔽 DFS 탐색 순서대로 노드를 클릭하세요! &nbsp; <span id="quizProgress">0 / 7</span>
     </div>
-    <canvas id="quizCanvas" width="620" height="280" style="width:100%;border-radius:14px;display:block;cursor:pointer;background:#f8fafc;border:1.5px solid var(--g200);"></canvas>
+    <canvas id="quizCanvas" width="500" height="220" style="width:100%;max-width:500px;border-radius:14px;display:block;cursor:pointer;background:#f8fafc;border:1.5px solid var(--g200);"></canvas>
     <div class="qlog" id="quizLog">👆 A부터 시작하여 탐색 순서대로 노드를 클릭하세요.</div>
 
     <!-- 시뮬레이션 (퀴즈 완료 후 표시) -->
@@ -221,8 +221,53 @@ footer strong{color:rgba(255,255,255,.9);}
           <span id="switchBtnLabel">➡ BFS도 풀어보기</span>
         </button>
       </div>
-      <canvas id="simCanvas" width="620" height="280" style="width:100%;border-radius:14px;display:block;background:#f8fafc;border:1.5px solid var(--g200);"></canvas>
+      <canvas id="simCanvas" width="500" height="220" style="width:100%;max-width:500px;border-radius:14px;display:block;background:#f8fafc;border:1.5px solid var(--g200);"></canvas>
       <div class="qlog" id="simLog" style="margin-top:10px;"></div>
+    </div>
+  </div>
+
+  <!-- ── 목표 상태 탐색 활동 ── -->
+  <div class="quiz-wrap" style="margin-top:32px;" id="goalSection">
+    <div class="quiz-title">🎯 목표 상태를 찾을 때까지 탐색하기</div>
+    <div class="quiz-sub" style="margin-bottom:20px;">탐색은 목표 상태를 발견하면 멈춥니다. DFS와 BFS 중 어느 쪽이 더 효율적일까요?</div>
+
+    <!-- 트리 그림 -->
+    <div style="background:#f8fafc;border-radius:14px;border:1.5px solid var(--g200);padding:20px 24px;margin-bottom:24px;">
+      <div style="display:flex;gap:16px;font-size:12px;font-weight:700;margin-bottom:10px;">
+        <span style="color:#92400e;background:#fef3c7;padding:3px 10px;border-radius:100px;">초기 상태: A</span>
+        <span style="color:#14532d;background:#dcfce7;padding:3px 10px;border-radius:100px;">목표 상태: F ⭐</span>
+      </div>
+      <canvas id="goalTreeCanvas" width="320" height="210" style="display:block;border-radius:10px;"></canvas>
+    </div>
+
+    <!-- Q1: DFS 탐색 순서 클릭 퀴즈 -->
+    <div style="border:1.5px solid #c7d2fe;border-radius:14px;padding:20px 22px;margin-bottom:18px;background:#f5f3ff;">
+      <div style="font-size:13px;font-weight:800;color:#4338ca;margin-bottom:10px;">Q1. 🔽 DFS 탐색 순서를 클릭하세요 (목표 F에서 멈춤)</div>
+      <canvas id="gDfsCanvas" width="500" height="190" style="width:100%;max-width:500px;border-radius:10px;display:block;cursor:pointer;background:#fff;border:1px solid #c7d2fe;margin-bottom:10px;"></canvas>
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+        <div class="qlog" id="gDfsLog" style="flex:1;margin:0;">👆 A부터 순서대로 클릭 — F를 찾으면 탐색이 멈춥니다.</div>
+        <button onclick="gReset('dfs')" style="padding:6px 14px;border-radius:8px;border:1.5px solid #c7d2fe;background:#fff;color:#4338ca;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;">🔄 다시 시작</button>
+      </div>
+    </div>
+
+    <!-- Q2: BFS 탐색 순서 클릭 퀴즈 -->
+    <div style="border:1.5px solid #99f6e4;border-radius:14px;padding:20px 22px;margin-bottom:18px;background:#f0fdfa;">
+      <div style="font-size:13px;font-weight:800;color:#0d9488;margin-bottom:10px;">Q2. ➡ BFS 탐색 순서를 클릭하세요 (목표 F에서 멈춤)</div>
+      <canvas id="gBfsCanvas" width="500" height="190" style="width:100%;max-width:500px;border-radius:10px;display:block;cursor:pointer;background:#fff;border:1px solid #99f6e4;margin-bottom:10px;"></canvas>
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+        <div class="qlog" id="gBfsLog" style="flex:1;margin:0;">👆 A부터 순서대로 클릭 — F를 찾으면 탐색이 멈춥니다.</div>
+        <button onclick="gReset('bfs')" style="padding:6px 14px;border-radius:8px;border:1.5px solid #99f6e4;background:#fff;color:#0d9488;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;">🔄 다시 시작</button>
+      </div>
+    </div>
+
+    <!-- Q3: 효율성 선택 (Q1+Q2 완료 후 표시) -->
+    <div id="efficiencyQ" style="display:block;border:1.5px solid #fbbf24;border-radius:14px;padding:20px 22px;background:#fffbeb;">
+      <div style="font-size:13px;font-weight:800;color:#92400e;margin-bottom:14px;">Q3. 이 경우 어떤 탐색이 더 효율적인가요?</div>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:14px;">
+        <button class="sim-btn sim-btn-dfs" onclick="checkEfficiency('dfs')" id="effDfsBtn">🔽 깊이 우선 탐색 (5번)</button>
+        <button class="sim-btn sim-btn-bfs" style="background:#0d9488;" onclick="checkEfficiency('bfs')" id="effBfsBtn">➡ 너비 우선 탐색 (6번)</button>
+      </div>
+      <div id="effResult" style="font-size:13.5px;font-weight:600;min-height:30px;"></div>
     </div>
   </div>
 </section>
@@ -674,11 +719,255 @@ function simReset(){
   drawSimTree([],[]);
 }
 
-// Init
+// ════════════════════════════════════════════════
+// 목표 상태 탐색 활동 (A→{B→{D,E,F}, C→{G,H}})
+// ════════════════════════════════════════════════
+const GOAL_NODES = [
+  {id:'A', x:.50, y:.10, parent:null,   children:['B','C']},
+  {id:'B', x:.28, y:.44, parent:'A',    children:['D','E','F']},
+  {id:'C', x:.72, y:.44, parent:'A',    children:['G','H']},
+  {id:'D', x:.12, y:.82, parent:'B',    children:[]},
+  {id:'E', x:.32, y:.82, parent:'B',    children:[]},
+  {id:'F', x:.52, y:.82, parent:'B',    children:[], isGoal:true},
+  {id:'G', x:.70, y:.82, parent:'C',    children:[]},
+  {id:'H', x:.88, y:.82, parent:'C',    children:[]},
+];
+const G_DFS_ORDER = ['A','B','D','E','F']; // stops at F
+const G_BFS_ORDER = ['A','B','C','D','E','F']; // stops at F
+
+let gDfsClicked=[], gBfsClicked=[], gDfsDone=false, gBfsDone=false;
+
+function gNodeXY(nd, cv){ return {x:nd.x*cv.width, y:nd.y*cv.height}; }
+const GNR=20;
+
+function drawGoalTree(cvId, highlighted=[], mode='neutral', flash=null, flashOk=true, stopAt=null){
+  const cv=document.getElementById(cvId);
+  if(!cv) return;
+  const ctx=cv.getContext('2d');
+  ctx.clearRect(0,0,cv.width,cv.height);
+  ctx.fillStyle='#fff'; ctx.fillRect(0,0,cv.width,cv.height);
+
+  // Edges
+  GOAL_NODES.forEach(nd=>{
+    nd.children.forEach(cid=>{
+      const ch=GOAL_NODES.find(n=>n.id===cid);
+      const p=gNodeXY(nd,cv), c=gNodeXY(ch,cv);
+      ctx.save(); ctx.strokeStyle='#cbd5e1'; ctx.lineWidth=2;
+      ctx.beginPath(); ctx.moveTo(p.x,p.y); ctx.lineTo(c.x,c.y); ctx.stroke(); ctx.restore();
+    });
+  });
+
+  // Nodes
+  GOAL_NODES.forEach(nd=>{
+    const p=gNodeXY(nd,cv);
+    const idx=highlighted.indexOf(nd.id);
+    const isVisited=idx>=0;
+    const isCurrent=highlighted.length>0 && nd.id===highlighted[highlighted.length-1];
+    const isGoal=nd.isGoal;
+    const isFlash=nd.id===flash;
+
+    let fill='#fff', stroke='#94a3b8', sw=2, tc='#374151';
+    if(isFlash && flashOk)  {fill='#dcfce7';stroke='#22c55e';sw=3;tc='#15803d';}
+    else if(isFlash)        {fill='#fee2e2';stroke='#ef4444';sw=3;tc='#b91c1c';}
+    else if(isGoal && isVisited){fill='#fef08a';stroke='#eab308';sw=3;tc='#854d0e';}
+    else if(isCurrent)      {fill=mode==='dfs'?'#4338ca':'#0d9488';stroke='transparent';sw=0;tc='#fff';}
+    else if(isVisited)      {fill=mode==='dfs'?'#c7d2fe':'#99f6e4';stroke=mode==='dfs'?'#818cf8':'#2dd4bf';sw=2;tc=mode==='dfs'?'#312e81':'#065f46';}
+    else if(isGoal)         {fill='#fefce8';stroke='#fbbf24';sw=2;tc='#92400e';}
+
+    // Dim nodes after goal is found
+    if(stopAt && !isVisited && nd.id!==stopAt) ctx.globalAlpha=0.35;
+
+    ctx.save();
+    ctx.shadowColor='rgba(0,0,0,.10)'; ctx.shadowBlur=6;
+    ctx.beginPath(); ctx.arc(p.x,p.y,GNR,0,Math.PI*2);
+    ctx.fillStyle=fill; ctx.fill();
+    if(sw>0){ctx.strokeStyle=stroke;ctx.lineWidth=sw;ctx.stroke();}
+    ctx.shadowBlur=0;
+
+    // visit order badge
+    if(isVisited){
+      ctx.fillStyle='rgba(0,0,0,.13)';
+      ctx.beginPath(); ctx.arc(p.x+GNR-6,p.y-GNR+6,8,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle=isCurrent?'#fff':'#1e293b';
+      ctx.font='bold 8px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillText(idx+1, p.x+GNR-6, p.y-GNR+6);
+    }
+
+    ctx.fillStyle=tc; ctx.font='bold 13px Noto Sans KR,sans-serif';
+    ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText(nd.id, p.x, p.y);
+    ctx.restore();
+    ctx.globalAlpha=1;
+
+    // ⭐ goal label
+    if(isGoal){
+      ctx.save(); ctx.font='10px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='top';
+      ctx.fillText('⭐목표', p.x, p.y+GNR+3); ctx.restore();
+    }
+  });
+
+  // 초기/목표 상태 label on A
+  const aNode=GOAL_NODES[0];
+  const ap=gNodeXY(aNode,cv);
+  ctx.save(); ctx.font='bold 9px sans-serif'; ctx.fillStyle='#92400e'; ctx.textAlign='center'; ctx.textBaseline='bottom';
+  ctx.fillText('초기 상태', ap.x, ap.y-GNR-3); ctx.restore();
+}
+
+function gHandleClick(cvId, mode){
+  const cv=document.getElementById(cvId);
+  const isDfs=mode==='dfs';
+  const order=isDfs?G_DFS_ORDER:G_BFS_ORDER;
+  const clicked=isDfs?gDfsClicked:gBfsClicked;
+  const done=isDfs?gDfsDone:gBfsDone;
+  if(done) return;
+
+  return function(e){
+    const rect=cv.getBoundingClientRect();
+    const mx=(e.clientX-rect.left)*(cv.width/rect.width);
+    const my=(e.clientY-rect.top)*(cv.height/rect.height);
+    let hit=null;
+    GOAL_NODES.forEach(nd=>{
+      const p=gNodeXY(nd,cv);
+      if(Math.hypot(mx-p.x,my-p.y)<GNR+5) hit=nd;
+    });
+    if(!hit) return;
+    const logId=isDfs?'gDfsLog':'gBfsLog';
+    const log=document.getElementById(logId);
+    const expected=order[clicked.length];
+
+    if(clicked.includes(hit.id)){
+      log.innerHTML=`💬 <strong>${hit.id}</strong>는 이미 탐색했습니다.`; return;
+    }
+    if(hit.id!==expected){
+      log.innerHTML=`❌ 틀렸습니다! 지금은 <strong>${expected}</strong>를 클릭해야 합니다.`;
+      drawGoalTree(cvId, clicked, mode, hit.id, false); setTimeout(()=>drawGoalTree(cvId,clicked,mode),600); return;
+    }
+
+    clicked.push(hit.id);
+    const isFinal=clicked.length===order.length;
+    drawGoalTree(cvId, clicked, mode, hit.id, true, isFinal?'F':null);
+    setTimeout(()=>drawGoalTree(cvId,clicked,mode,null,true,isFinal?'F':null),500);
+
+    if(isFinal){
+      if(isDfs) gDfsDone=true; else gBfsDone=true;
+      log.innerHTML=`🎉 <strong>F(목표 상태) 발견!</strong> 탐색 순서: ${order.join(' → ')}. 총 <strong>${order.length}번</strong> 탐색했습니다.`;
+      if(gDfsDone && gBfsDone) document.getElementById('efficiencyQ').style.display='block';
+    } else {
+      const next=order[clicked.length];
+      log.innerHTML=`✅ <strong>${hit.id}</strong> 탐색 완료. 다음은 <strong>${next}</strong>를 클릭하세요.`;
+    }
+  };
+}
+
+function checkEfficiency(choice){
+  const res=document.getElementById('effResult');
+  document.getElementById('effDfsBtn').style.opacity='0.5';
+  document.getElementById('effBfsBtn').style.opacity='0.5';
+  if(choice==='dfs'){
+    document.getElementById('effDfsBtn').style.opacity='1';
+    document.getElementById('effDfsBtn').style.outline='3px solid #fbbf24';
+    res.innerHTML=`✅ 정답! 이 경우 DFS가 <strong>5번</strong> 만에 목표를 찾아 BFS(6번)보다 효율적입니다.<br><span style="color:#6b7280;font-size:12.5px;">탐색 알고리즘의 효율은 어떠한 순서로 데이터를 검색하는지에 따라 결정됩니다.</span>`;
+    res.style.color='#15803d';
+  } else {
+    document.getElementById('effBfsBtn').style.opacity='1';
+    document.getElementById('effBfsBtn').style.outline='3px solid #fbbf24';
+    res.innerHTML=`❌ 오답! 이 경우 DFS가 <strong>5번</strong>, BFS가 <strong>6번</strong> 탐색했습니다. DFS가 더 적은 횟수로 목표를 찾았습니다.<br><span style="color:#6b7280;font-size:12.5px;">탐색 알고리즘의 효율은 어떠한 순서로 데이터를 검색하는지에 따라 결정됩니다.</span>`;
+    res.style.color='#b91c1c';
+  }
+}
+
+// Init goal canvases
 window.addEventListener('DOMContentLoaded',()=>{
   mazeReset();
   switchQuiz('dfs');
+  drawGoalTree('goalTreeCanvas',[]);
+  drawGoalTree('gDfsCanvas',[]);
+  drawGoalTree('gBfsCanvas',[]);
+
+  // bind clicks
+  const dfsHandler=gHandleClick('gDfsCanvas','dfs');
+  const bfsHandler=gHandleClick('gBfsCanvas','bfs');
+  document.getElementById('gDfsCanvas').addEventListener('click', e=>{
+    const isDfs=true;
+    const order=G_DFS_ORDER;
+    if(gDfsDone) return;
+    const cv=document.getElementById('gDfsCanvas');
+    const rect=cv.getBoundingClientRect();
+    const mx=(e.clientX-rect.left)*(cv.width/rect.width);
+    const my=(e.clientY-rect.top)*(cv.height/rect.height);
+    let hit=null;
+    GOAL_NODES.forEach(nd=>{const p=gNodeXY(nd,cv);if(Math.hypot(mx-p.x,my-p.y)<GNR+5) hit=nd;});
+    if(!hit) return;
+    const log=document.getElementById('gDfsLog');
+    const expected=order[gDfsClicked.length];
+    if(gDfsClicked.includes(hit.id)){log.innerHTML=`💬 <strong>${hit.id}</strong>는 이미 탐색했습니다.`;return;}
+    if(hit.id!==expected){
+      log.innerHTML=`❌ 틀렸습니다!`;
+      drawGoalTree('gDfsCanvas',gDfsClicked,'dfs',hit.id,false);
+      setTimeout(()=>drawGoalTree('gDfsCanvas',gDfsClicked,'dfs'),600);return;
+    }
+    gDfsClicked.push(hit.id);
+    const isFinal=gDfsClicked.length===order.length;
+    drawGoalTree('gDfsCanvas',gDfsClicked,'dfs',hit.id,true,isFinal?'F':null);
+    setTimeout(()=>drawGoalTree('gDfsCanvas',gDfsClicked,'dfs',null,true,isFinal?'F':null),500);
+    if(isFinal){
+      gDfsDone=true;
+      log.innerHTML=`🎉 정답! F(목표 상태) 발견! 총 <strong>${order.length}번</strong> 탐색했습니다.`;
+      if(gDfsDone&&gBfsDone) document.getElementById('efficiencyQ').style.display='block';
+    } else {
+      log.innerHTML=`✅ <strong>${hit.id}</strong> 정답!`;
+    }
+  });
+
+  document.getElementById('gBfsCanvas').addEventListener('click', e=>{
+    const order=G_BFS_ORDER;
+    if(gBfsDone) return;
+    const cv=document.getElementById('gBfsCanvas');
+    const rect=cv.getBoundingClientRect();
+    const mx=(e.clientX-rect.left)*(cv.width/rect.width);
+    const my=(e.clientY-rect.top)*(cv.height/rect.height);
+    let hit=null;
+    GOAL_NODES.forEach(nd=>{const p=gNodeXY(nd,cv);if(Math.hypot(mx-p.x,my-p.y)<GNR+5) hit=nd;});
+    if(!hit) return;
+    const log=document.getElementById('gBfsLog');
+    const expected=order[gBfsClicked.length];
+    if(gBfsClicked.includes(hit.id)){log.innerHTML=`💬 <strong>${hit.id}</strong>는 이미 탐색했습니다.`;return;}
+    if(hit.id!==expected){
+      log.innerHTML=`❌ 틀렸습니다!`;
+      drawGoalTree('gBfsCanvas',gBfsClicked,'bfs',hit.id,false);
+      setTimeout(()=>drawGoalTree('gBfsCanvas',gBfsClicked,'bfs'),600);return;
+    }
+    gBfsClicked.push(hit.id);
+    const isFinal=gBfsClicked.length===order.length;
+    drawGoalTree('gBfsCanvas',gBfsClicked,'bfs',hit.id,true,isFinal?'F':null);
+    setTimeout(()=>drawGoalTree('gBfsCanvas',gBfsClicked,'bfs',null,true,isFinal?'F':null),500);
+    if(isFinal){
+      gBfsDone=true;
+      log.innerHTML=`🎉 정답! F(목표 상태) 발견! 총 <strong>${order.length}번</strong> 탐색했습니다.`;
+      if(gDfsDone&&gBfsDone) document.getElementById('efficiencyQ').style.display='block';
+    } else {
+      log.innerHTML=`✅ <strong>${hit.id}</strong> 정답!`;
+    }
+  });
 });
+
+function gReset(mode){
+  if(mode==='dfs'){
+    gDfsClicked=[]; gDfsDone=false;
+    document.getElementById('gDfsLog').innerHTML='👆 A부터 순서대로 클릭 — F를 찾으면 탐색이 멈춥니다.';
+    drawGoalTree('gDfsCanvas',[]);
+  } else {
+    gBfsClicked=[]; gBfsDone=false;
+    document.getElementById('gBfsLog').innerHTML='👆 A부터 순서대로 클릭 — F를 찾으면 탐색이 멈춥니다.';
+    drawGoalTree('gBfsCanvas',[]);
+  }
+  document.getElementById('efficiencyQ').style.display='none';
+  document.getElementById('effResult').innerHTML='';
+  document.getElementById('effDfsBtn').style.opacity='1';
+  document.getElementById('effBfsBtn').style.opacity='1';
+  document.getElementById('effDfsBtn').style.outline='none';
+  document.getElementById('effBfsBtn').style.outline='none';
+}
 </script>
 </body>
 </html>
