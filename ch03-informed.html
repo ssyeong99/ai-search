@@ -229,6 +229,34 @@ footer strong{color:rgba(255,255,255,.9);}
     </div>
   </div>
 
+  <!-- 8퍼즐 규칙 알아보기 -->
+  <div style="margin-bottom:28px;">
+    <div style="font-size:15px;font-weight:900;color:var(--g900);margin-bottom:16px;display:flex;align-items:center;gap:8px;">
+      <span style="background:linear-gradient(135deg,#4338ca,#7c3aed);color:#fff;padding:3px 14px;border-radius:100px;font-size:12px;">8-퍼즐 규칙</span>
+      핵심 규칙 3가지를 알아봅시다
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;">
+      <div style="background:#f0f9ff;border-radius:16px;padding:20px 18px;border:1.5px solid #bae6fd;position:relative;overflow:hidden;">
+        <div style="position:absolute;top:0;left:0;right:0;height:3px;background:#3b82f6;"></div>
+        <div style="width:40px;height:40px;background:#fff;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:18px;margin-bottom:10px;box-shadow:0 2px 8px rgba(0,0,0,.08);">◼</div>
+        <div style="font-size:13px;font-weight:900;color:#1e3a5f;margin-bottom:6px;">1. 기본 구성</div>
+        <p style="font-size:12.5px;color:#334155;line-height:1.7;">가로 3칸, 세로 3칸의 게임판에 <strong>1~8 숫자 타일</strong>과 <strong>1개의 빈칸</strong>이 있습니다.</p>
+      </div>
+      <div style="background:#fff7ed;border-radius:16px;padding:20px 18px;border:1.5px solid #fed7aa;position:relative;overflow:hidden;">
+        <div style="position:absolute;top:0;left:0;right:0;height:3px;background:#ea580c;"></div>
+        <div style="width:40px;height:40px;background:#fff;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:18px;margin-bottom:10px;box-shadow:0 2px 8px rgba(0,0,0,.08);">↕</div>
+        <div style="font-size:13px;font-weight:900;color:#7c2d12;margin-bottom:6px;">2. 이동 방법</div>
+        <p style="font-size:12.5px;color:#334155;line-height:1.7;">빈칸과 <strong>상하좌우로 맞닿은 타일</strong>만 빈칸 쪽으로 이동할 수 있습니다. 대각선 이동은 불가!</p>
+      </div>
+      <div style="background:#f0fdf4;border-radius:16px;padding:20px 18px;border:1.5px solid #86efac;position:relative;overflow:hidden;">
+        <div style="position:absolute;top:0;left:0;right:0;height:3px;background:#16a34a;"></div>
+        <div style="width:40px;height:40px;background:#fff;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:18px;margin-bottom:10px;box-shadow:0 2px 8px rgba(0,0,0,.08);">🏆</div>
+        <div style="font-size:13px;font-weight:900;color:#14532d;margin-bottom:6px;">3. 최종 목표</div>
+        <p style="font-size:12.5px;color:#334155;line-height:1.7;">숫자를 <strong>1~8 순서대로</strong> 맞추고 오른쪽 아래를 <strong>빈칸</strong>으로 만들면 완성!</p>
+      </div>
+    </div>
+  </div>
+
   <!-- 8퍼즐 예시 -->
   <div style="background:#fff;border-radius:20px;padding:32px 36px;border:1.5px solid var(--g200);box-shadow:0 4px 20px rgba(0,0,0,.05);">
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
@@ -332,6 +360,92 @@ footer strong{color:rgba(255,255,255,.9);}
       <span class="blank-word" id="bw4" onclick="revealBlank(4)">　　　</span>
       로 움직이는 것에 따라 상태가 변하므로, 그 방향으로의 움직임이 곧 <strong>연산자</strong>가 된다.
     </p>
+  </div>
+</section>
+
+<!-- SECTION 1-B2: 8퍼즐 직접 탐색해보기 -->
+<section class="c-sec" style="background:#fff;">
+  <div class="sec-hdr">
+    <span class="sec-badge" style="background:linear-gradient(135deg,#7c3aed,#ec4899);">🤖 학습 01-③</span>
+    <h2 class="sec-title">8-퍼즐 직접 탐색해 보기</h2>
+    <p class="sec-sub">직접 퍼즐을 풀어보고, AI(A* 알고리즘)가 최단 경로를 찾는 과정을 비교해보세요.</p>
+  </div>
+
+  <div style="display:flex;gap:32px;align-items:flex-start;flex-wrap:wrap;">
+
+    <!-- 왼쪽: 퍼즐 + 버튼 -->
+    <div style="flex:1;min-width:260px;display:flex;flex-direction:column;align-items:center;gap:16px;">
+
+      <!-- 이동 횟수 -->
+      <div style="font-size:14px;font-weight:800;color:var(--g700);">
+        🦶 이동 횟수: <span id="aiMoveCount" style="font-size:22px;font-weight:900;color:#7c3aed;">0</span>
+      </div>
+
+      <!-- 위 버튼 -->
+      <div style="display:flex;flex-direction:column;align-items:center;gap:8px;">
+        <button class="op-btn" onclick="aiMoveTile('up')">▲ 상</button>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <button class="op-btn" onclick="aiMoveTile('left')">◀ 좌</button>
+          <!-- 퍼즐 그리드 -->
+          <div id="aiPuzzleBoard" style="display:grid;grid-template-columns:repeat(3,72px);grid-template-rows:repeat(3,72px);gap:6px;background:#e2e8f0;padding:8px;border-radius:14px;box-shadow:0 4px 18px rgba(0,0,0,.08);"></div>
+          <button class="op-btn" onclick="aiMoveTile('right')">우 ▶</button>
+        </div>
+        <button class="op-btn" onclick="aiMoveTile('down')">▼ 하</button>
+      </div>
+
+      <!-- 버튼들 -->
+      <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;">
+        <button id="aiShuffleBtn" onclick="aiShufflePuzzle()"
+          style="padding:10px 20px;background:#1e293b;color:#fff;border:none;border-radius:12px;font-family:inherit;font-size:13px;font-weight:800;cursor:pointer;transition:.18s;">
+          🔀 문제 섞기
+        </button>
+        <button id="aiSolveBtn" onclick="aiSolvePuzzle()"
+          style="padding:10px 20px;background:#7c3aed;color:#fff;border:none;border-radius:12px;font-family:inherit;font-size:13px;font-weight:800;cursor:pointer;transition:.18s;">
+          🤖 AI가 풀기
+        </button>
+        <button onclick="aiResetPuzzle()"
+          style="padding:10px 20px;background:#fff;color:var(--g700);border:1.5px solid var(--g200);border-radius:12px;font-family:inherit;font-size:13px;font-weight:800;cursor:pointer;transition:.18s;">
+          🔄 초기화
+        </button>
+      </div>
+
+      <!-- AI 경로 표시 -->
+      <div id="aiPathContainer" style="display:none;width:100%;background:#ede9fe;border:1.5px solid #c4b5fd;border-radius:14px;padding:14px 18px;animation:fadeIn .4s ease;">
+        <div style="font-size:13px;font-weight:800;color:#4c1d95;margin-bottom:10px;">🛣️ AI가 찾은 최적 이동 경로</div>
+        <div id="aiPathSteps" style="display:flex;flex-wrap:wrap;align-items:center;gap:6px;font-size:12px;font-weight:700;"></div>
+      </div>
+    </div>
+
+    <!-- 오른쪽: 안내 -->
+    <div style="flex:1;min-width:240px;display:flex;flex-direction:column;gap:14px;">
+      <div style="font-size:14px;font-weight:900;color:var(--g900);border-bottom:2px solid var(--g100);padding-bottom:10px;">📋 실습 방법</div>
+      <ul style="font-size:13.5px;color:var(--g700);line-height:2;list-style:none;padding:0;margin:0;">
+        <li>✅ <strong>목표 상태:</strong> 1~8 순서대로 정렬, 마지막 빈칸</li>
+        <li>✅ <strong>직접 풀기:</strong> 방향 버튼이나 빈칸 주변 숫자를 클릭</li>
+        <li>✅ <strong>AI가 풀기:</strong> A* 알고리즘으로 최단 경로 자동 탐색</li>
+      </ul>
+      <div style="background:#ede9fe;border-radius:12px;padding:14px 16px;border:1px solid #c4b5fd;font-size:13px;color:#4c1d95;line-height:1.8;">
+        💡 <strong>A* 알고리즘</strong>은 <em>f(n) = g(n) + h(n)</em>을 기반으로<br>
+        맨해튼 거리(h)를 휴리스틱으로 사용하여<br>
+        최단 이동 경로를 효율적으로 탐색합니다.
+      </div>
+      <!-- 목표 상태 미니 표시 -->
+      <div style="background:#f8fafc;border-radius:12px;padding:14px 16px;border:1px solid var(--g200);">
+        <div style="font-size:12px;font-weight:800;color:var(--g600);margin-bottom:10px;">🎯 목표 상태</div>
+        <div style="display:grid;grid-template-columns:repeat(3,36px);gap:4px;width:fit-content;">
+          <div style="width:36px;height:36px;background:#7c3aed;color:#fff;border-radius:6px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:14px;">1</div>
+          <div style="width:36px;height:36px;background:#7c3aed;color:#fff;border-radius:6px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:14px;">2</div>
+          <div style="width:36px;height:36px;background:#7c3aed;color:#fff;border-radius:6px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:14px;">3</div>
+          <div style="width:36px;height:36px;background:#7c3aed;color:#fff;border-radius:6px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:14px;">4</div>
+          <div style="width:36px;height:36px;background:#7c3aed;color:#fff;border-radius:6px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:14px;">5</div>
+          <div style="width:36px;height:36px;background:#7c3aed;color:#fff;border-radius:6px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:14px;">6</div>
+          <div style="width:36px;height:36px;background:#7c3aed;color:#fff;border-radius:6px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:14px;">7</div>
+          <div style="width:36px;height:36px;background:#7c3aed;color:#fff;border-radius:6px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:14px;">8</div>
+          <div style="width:36px;height:36px;background:#e2e8f0;border-radius:6px;"></div>
+        </div>
+      </div>
+    </div>
+
   </div>
 </section>
 
@@ -1212,6 +1326,179 @@ function moveTile(dir){
   renderSimGrid();
 }
 
+// ─── 인터랙티브 8퍼즐 (A* 탐색) ───
+const AI_GOAL_STATE = [1,2,3,4,5,6,7,8,0];
+let aiState = [2,0,3,1,8,4,7,6,5];
+let aiMoveCount = 0;
+let aiAnimating = false;
+let aiTileEls = [];
+
+function aiInitBoard(){
+  const board = document.getElementById('aiPuzzleBoard');
+  if(!board) return;
+  board.innerHTML=''; aiTileEls=[];
+  for(let i=0;i<9;i++){
+    const t=document.createElement('div');
+    t.style.cssText='width:72px;height:72px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:900;cursor:pointer;transition:all .15s;user-select:none;';
+    t.onclick=()=>aiHandleClick(i);
+    board.appendChild(t); aiTileEls.push(t);
+  }
+  aiRenderBoard();
+}
+function aiRenderBoard(){
+  aiState.forEach((n,i)=>{
+    const t=aiTileEls[i]; if(!t) return;
+    if(n===0){
+      t.style.background='transparent'; t.style.boxShadow='none'; t.style.color='transparent'; t.textContent='';
+    } else {
+      t.style.background='#fff'; t.style.color='#7c3aed';
+      t.style.boxShadow='0 3px 10px rgba(0,0,0,.1)'; t.textContent=n;
+    }
+  });
+  document.getElementById('aiMoveCount').textContent=aiMoveCount;
+  if(aiMoveCount>0 && aiState.join('')===AI_GOAL_STATE.join('') && !aiAnimating){
+    setTimeout(()=>aiShowToast('🎉 퍼즐 완성!','success'),100);
+  }
+}
+function aiGetMoves(ei){
+  const moves=[]; const r=Math.floor(ei/3),c=ei%3;
+  if(r>0) moves.push(ei-3); if(r<2) moves.push(ei+3);
+  if(c>0) moves.push(ei-1); if(c<2) moves.push(ei+1);
+  return moves;
+}
+function aiHandleClick(idx){
+  if(aiAnimating) return;
+  const ei=aiState.indexOf(0);
+  if(aiGetMoves(ei).includes(idx)){
+    [aiState[ei],aiState[idx]]=[aiState[idx],aiState[ei]];
+    aiMoveCount++; aiRenderBoard();
+  }
+}
+function aiMoveTile(dir){
+  if(aiAnimating) return;
+  const ei=aiState.indexOf(0);
+  const r=Math.floor(ei/3),c=ei%3;
+  let ni=-1;
+  if(dir==='up'&&r>0) ni=ei-3;
+  else if(dir==='down'&&r<2) ni=ei+3;
+  else if(dir==='left'&&c>0) ni=ei-1;
+  else if(dir==='right'&&c<2) ni=ei+1;
+  if(ni>=0){[aiState[ei],aiState[ni]]=[aiState[ni],aiState[ei]]; aiMoveCount++; aiRenderBoard();}
+}
+function aiResetPuzzle(){
+  if(aiAnimating) return;
+  aiState=[2,0,3,1,8,4,7,6,5]; aiMoveCount=0; aiAnimating=false;
+  document.getElementById('aiPathContainer').style.display='none';
+  document.getElementById('aiPathSteps').innerHTML='';
+  document.getElementById('aiSolveBtn').textContent='🤖 AI가 풀기';
+  document.getElementById('aiShuffleBtn').disabled=false;
+  document.getElementById('aiSolveBtn').disabled=false;
+  aiRenderBoard();
+}
+function aiShufflePuzzle(){
+  if(aiAnimating) return;
+  let prev=-1;
+  for(let i=0;i<30;i++){
+    const ei=aiState.indexOf(0);
+    let moves=aiGetMoves(ei);
+    if(prev!==-1&&moves.length>1) moves=moves.filter(m=>m!==prev);
+    const rm=moves[Math.floor(Math.random()*moves.length)];
+    [aiState[ei],aiState[rm]]=[aiState[rm],aiState[ei]];
+    prev=ei;
+  }
+  aiMoveCount=0;
+  document.getElementById('aiPathContainer').style.display='none';
+  aiRenderBoard();
+}
+function aiManhattan(state){
+  let d=0;
+  for(let i=0;i<9;i++){
+    if(state[i]===0) continue;
+    const tx=(state[i]-1)%3, ty=Math.floor((state[i]-1)/3);
+    d+=Math.abs(tx-i%3)+Math.abs(ty-Math.floor(i/3));
+  }
+  return d;
+}
+async function aiSolvePuzzle(){
+  if(aiAnimating) return;
+  if(aiState.join('')===AI_GOAL_STATE.join('')){ aiShowToast('이미 정답 상태입니다.','info'); return; }
+  aiAnimating=true;
+  document.getElementById('aiShuffleBtn').disabled=true;
+  document.getElementById('aiSolveBtn').disabled=true;
+  document.getElementById('aiSolveBtn').textContent='⏳ 탐색 중...';
+  document.getElementById('aiPathSteps').innerHTML='';
+  await new Promise(r=>setTimeout(r,80));
+
+  // A* 탐색
+  const pq=[];
+  const enq=(node,p)=>{ pq.push({node,p}); pq.sort((a,b)=>a.p-b.p); };
+  enq({state:[...aiState],path:[],g:0}, aiManhattan(aiState));
+  const visited=new Map();
+  visited.set(aiState.join(''),0);
+  let sol=null;
+  while(pq.length){
+    const {node:cur}=pq.shift();
+    if(cur.state.join('')===AI_GOAL_STATE.join('')){ sol=cur.path; break; }
+    const ei=cur.state.indexOf(0);
+    for(const ni of aiGetMoves(ei)){
+      const ns=[...cur.state];
+      [ns[ei],ns[ni]]=[ns[ni],ns[ei]];
+      const key=ns.join(''), ng=cur.g+1;
+      if(!visited.has(key)||ng<visited.get(key)){
+        visited.set(key,ng);
+        enq({state:ns,path:[...cur.path,ni],g:ng}, ng+aiManhattan(ns));
+      }
+    }
+  }
+  if(sol){
+    document.getElementById('aiSolveBtn').textContent='✅ 완료!';
+    const pathBox=document.getElementById('aiPathContainer');
+    const stepsEl=document.getElementById('aiPathSteps');
+    pathBox.style.display='block';
+    aiMoveCount=0;
+    for(let i=0;i<sol.length;i++){
+      const ni=sol[i], tileNum=aiState[ni];
+      if(i>0){
+        const arr=document.createElement('span');
+        arr.textContent='›'; arr.style.cssText='color:#a78bfa;font-size:14px;font-weight:900;';
+        stepsEl.appendChild(arr);
+      }
+      const badge=document.createElement('span');
+      badge.style.cssText='padding:3px 10px;background:#fff;border:1.5px solid #c4b5fd;color:#5b21b6;border-radius:8px;font-size:12px;font-weight:800;';
+      badge.textContent=`${i+1}. 타일 ${tileNum}`;
+      stepsEl.appendChild(badge);
+      await new Promise(r=>setTimeout(r,350));
+      const ei=aiState.indexOf(0);
+      [aiState[ei],aiState[ni]]=[aiState[ni],aiState[ei]];
+      aiMoveCount++; aiRenderBoard();
+    }
+    // 완성 배지
+    const arr=document.createElement('span');
+    arr.textContent='›'; arr.style.cssText='color:#a78bfa;font-size:14px;font-weight:900;';
+    stepsEl.appendChild(arr);
+    const fin=document.createElement('span');
+    fin.style.cssText='padding:3px 10px;background:#22c55e;color:#fff;border-radius:8px;font-size:12px;font-weight:800;';
+    fin.textContent='🏁 완성';
+    stepsEl.appendChild(fin);
+    aiShowToast(`A* 알고리즘으로 ${sol.length}번 만에 해결!`,'success');
+  } else {
+    aiShowToast('경로를 찾지 못했습니다.','error');
+  }
+  aiAnimating=false;
+  document.getElementById('aiShuffleBtn').disabled=false;
+}
+function aiShowToast(msg,type){
+  const exist=document.getElementById('aiToast');
+  if(exist) exist.remove();
+  const t=document.createElement('div');
+  t.id='aiToast';
+  const bg=type==='success'?'#7c3aed':type==='error'?'#dc2626':'#334155';
+  t.style.cssText=`position:fixed;bottom:32px;left:50%;transform:translateX(-50%) translateY(20px);background:${bg};color:#fff;padding:12px 28px;border-radius:16px;font-size:14px;font-weight:800;box-shadow:0 8px 24px rgba(0,0,0,.18);z-index:9999;opacity:0;transition:all .3s;pointer-events:none;`;
+  t.textContent=msg; document.body.appendChild(t);
+  requestAnimationFrame(()=>{ t.style.opacity='1'; t.style.transform='translateX(-50%) translateY(0)'; });
+  setTimeout(()=>{ t.style.opacity='0'; t.style.transform='translateX(-50%) translateY(20px)'; setTimeout(()=>t.remove(),300); },3000);
+}
+
 // ─── 트리 퀴즈 (직접 입력 방식) ───
 const TQ_GOAL  = [1,2,3,8,0,4,7,6,5];
 const TQ_ROOT  = [2,0,3,1,8,4,7,6,5];
@@ -1551,6 +1838,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
   pfDrawEstimateSVG();
   pfBuildCalcGrid(1);
   renderSimGrid();
+  aiInitBoard();
   initTreeQuiz();
   initAsTree();
 });
