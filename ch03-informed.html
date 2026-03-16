@@ -1351,8 +1351,10 @@ function aiInitBoard(){
     board.appendChild(t);
     aiTileElements.push(t);
   }
-  aiCurrentState = [2,0,3,1,8,4,7,6,5];
+  aiCurrentState = [...AI_GOAL_STATE];
   aiMoveCount = 0;
+  // 목표 상태에서 셔플해야 항상 풀 수 있는 상태가 됨
+  aiDoShuffle();
   aiUpdateBoardUI();
 }
 
@@ -1418,10 +1420,25 @@ function aiMoveTile(dir){
   }
 }
 
+/* ── 셔플 로직 (목표 상태에서 출발 → 항상 풀 수 있음) ── */
+function aiDoShuffle(){
+  aiCurrentState = [...AI_GOAL_STATE];
+  let prevEmpty = -1;
+  for(let i=0;i<25;i++){
+    const ei = aiCurrentState.indexOf(0);
+    let ms = aiGetValidMoves(ei);
+    if(prevEmpty !== -1 && ms.length > 1) ms = ms.filter(m=>m!==prevEmpty);
+    const rm = ms[Math.floor(Math.random()*ms.length)];
+    [aiCurrentState[ei],aiCurrentState[rm]]=[aiCurrentState[rm],aiCurrentState[ei]];
+    prevEmpty = ei;
+  }
+}
+
 /* ── 초기화 ── */
 function aiResetPuzzle(){
   if(aiIsAnimating) return;
-  aiCurrentState = [2,0,3,1,8,4,7,6,5];
+  aiCurrentState = [...AI_GOAL_STATE];
+  aiDoShuffle();
   aiMoveCount = 0; aiIsAnimating = false;
   aiHidePath();
   aiSolveBtn().innerHTML = '🤖 AI가 풀기';
@@ -1430,18 +1447,10 @@ function aiResetPuzzle(){
   aiUpdateBoardUI();
 }
 
-/* ── 셔플 (20회, 되돌아가기 방지) ── */
+/* ── 셔플 버튼 ── */
 function aiShufflePuzzle(){
   if(aiIsAnimating) return;
-  let prevEmpty = -1;
-  for(let i=0;i<20;i++){
-    const ei = aiCurrentState.indexOf(0);
-    let ms = aiGetValidMoves(ei);
-    if(prevEmpty !== -1 && ms.length > 1) ms = ms.filter(m=>m!==prevEmpty);
-    const rm = ms[Math.floor(Math.random()*ms.length)];
-    [aiCurrentState[ei],aiCurrentState[rm]]=[aiCurrentState[rm],aiCurrentState[ei]];
-    prevEmpty = ei;
-  }
+  aiDoShuffle();
   aiMoveCount = 0;
   aiHidePath();
   aiUpdateBoardUI();
