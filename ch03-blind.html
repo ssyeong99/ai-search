@@ -272,6 +272,54 @@ footer strong{color:rgba(255,255,255,.9);}
   </div>
 </section>
 
+<!-- 무정보탐색 시뮬레이터 버튼 -->
+<section style="background:#f8fafc;padding:48px 0;text-align:center;">
+  <div style="font-size:14px;font-weight:700;color:#6b7280;margin-bottom:18px;letter-spacing:.3px;">
+    맹목적 탐색을 직접 체험해 볼까요?
+  </div>
+  <a href="bfs-dfs-sim.html"
+     style="display:inline-flex;align-items:center;gap:12px;padding:18px 40px;background:linear-gradient(135deg,#1e1b4b,#4338ca,#7c3aed);color:#fff;text-decoration:none;border-radius:20px;font-size:16px;font-weight:900;box-shadow:0 8px 32px rgba(67,56,202,.35);transition:all .2s;letter-spacing:.3px;"
+     onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 14px 40px rgba(67,56,202,.45)'"
+     onmouseout="this.style.transform='';this.style.boxShadow='0 8px 32px rgba(67,56,202,.35)'">
+    <span style="font-size:22px;">🧩</span>
+    무정보 탐색 시뮬레이터 체험하기
+    <span style="font-size:18px;">→</span>
+  </a>
+  <div style="margin-top:14px;font-size:12.5px;color:#9ca3af;">
+    8-퍼즐로 DFS · BFS 탐색 과정을 직접 실행해보세요
+  </div>
+</section>
+
+<!-- 시뮬레이터 링크 -->
+<section class="c-sec" style="background:linear-gradient(135deg,#0f766e,#14b8a6,#06b6d4);text-align:center;padding:48px 32px;">
+  <div style="font-size:13px;font-weight:800;color:rgba(255,255,255,.75);letter-spacing:.5px;margin-bottom:12px;">🔬 직접 실험해 보기</div>
+  <h2 style="font-size:24px;font-weight:900;color:#fff;margin-bottom:10px;">무정보 탐색 시뮬레이터</h2>
+  <p style="font-size:14px;color:rgba(255,255,255,.85);line-height:1.8;margin-bottom:28px;max-width:480px;margin-left:auto;margin-right:auto;">
+    트리 구조와 2D 공간에서 BFS·DFS가 어떻게 탐색하는지<br>
+    직접 맵을 그리고 단계별로 실행해 보세요.
+  </p>
+  <a href="bfs-dfs-sim.html"
+     style="display:inline-flex;align-items:center;gap:10px;padding:16px 36px;background:#fff;color:#0f766e;border-radius:100px;font-size:15px;font-weight:900;text-decoration:none;box-shadow:0 8px 28px rgba(0,0,0,.18);transition:transform .18s,box-shadow .18s;"
+     onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 12px 36px rgba(0,0,0,.22)'"
+     onmouseout="this.style.transform='';this.style.boxShadow='0 8px 28px rgba(0,0,0,.18)'">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <polygon points="5 3 19 12 5 21 5 3"></polygon>
+    </svg>
+    시뮬레이터 실행하기
+  </a>
+  <div style="display:flex;justify-content:center;gap:28px;margin-top:28px;flex-wrap:wrap;">
+    <div style="color:rgba(255,255,255,.85);font-size:13px;font-weight:700;display:flex;align-items:center;gap:6px;">
+      <span style="width:10px;height:10px;background:#10b981;border-radius:50%;display:inline-block;"></span> 2D 그리드 탐색
+    </div>
+    <div style="color:rgba(255,255,255,.85);font-size:13px;font-weight:700;display:flex;align-items:center;gap:6px;">
+      <span style="width:10px;height:10px;background:#6366f1;border-radius:50%;display:inline-block;"></span> 트리 구조 탐색
+    </div>
+    <div style="color:rgba(255,255,255,.85);font-size:13px;font-weight:700;display:flex;align-items:center;gap:6px;">
+      <span style="width:10px;height:10px;background:#f59e0b;border-radius:50%;display:inline-block;"></span> BFS / DFS 비교
+    </div>
+  </div>
+</section>
+
 <!-- FOOTER -->
 <footer>
   <div class="ft-line"></div>
