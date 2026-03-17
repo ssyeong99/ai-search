@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>무정보 탐색 (BFS & DFS) 시뮬레이터</title>
+<style>
+@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css");
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:"Pretendard Variable",Pretendard,sans-serif;background:#f8fafc;color:#1e293b;}
+
+/* ── 헤더 ── */
+.hero{background:linear-gradient(135deg,#0f766e,#14b8a6,#06b6d4,#3b82f6);color:#fff;padding:56px 24px;}
+.hero-inner{max-width:860px;margin:0 auto;text-align:center;}
+.hero h1{font-size:clamp(2rem,5vw,3.5rem);font-weight:900;line-height:1.15;margin-bottom:14px;}
+.hero p{font-size:1.05rem;opacity:.9;max-width:560px;margin:0 auto;}
+.hero-tag{display:inline-block;padding:5px 18px;background:rgba(255,255,255,.2);border-radius:100px;font-weight:700;font-size:13px;margin-bottom:18px;}
+.back-btn{display:inline-flex;align-items:center;gap:8px;padding:9px 18px;background:rgba(255,255,255,.18);color:#fff;border:2px solid rgba(255,255,255,.4);border-radius:100px;font-weight:800;font-size:13px;text-decoration:none;margin-bottom:24px;}
+.back-btn:hover{background:rgba(255,255,255,.3);}
+
+/* ── 탭 ── */
+.tab-bar{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.88);backdrop-filter:blur(12px);border-bottom:1px solid #e2e8f0;box-shadow:0 1px 4px rgba(0,0,0,.06);}
+.tab-inner{max-width:1100px;margin:0 auto;display:flex;justify-content:center;}
+.tab-btn{padding:14px 36px;font-weight:700;font-size:14px;color:#64748b;border:none;border-bottom:3px solid transparent;background:none;cursor:pointer;transition:all .18s;}
+.tab-btn.active{color:#6366f1;border-bottom-color:#6366f1;}
+
+/* ── 레이아웃 ── */
+main{max-width:1200px;margin:0 auto;padding:24px 16px;}
+.card{background:#fff;border-radius:16px;border:1.5px solid #e2e8f0;padding:20px;box-shadow:0 2px 12px rgba(0,0,0,.04);}
+.hidden{display:none!important;}
+
+/* 그리드 탭: 3컬럼 고정 */
+.grid-layout{
+  display:grid;
+  grid-template-columns:190px 1fr 1fr;
+  gap:20px;
+  align-items:start;
+}
+/* 트리 탭: 2컬럼 */
+.tree-layout{
+  display:grid;
+  grid-template-columns:210px 1fr;
+  gap:20px;
+  align-items:start;
+}
+
+/* ── 컨트롤 패널 ── */
+.ctrl-label{font-size:12.5px;font-weight:800;color:#64748b;display:flex;align-items:center;gap:6px;margin-bottom:8px;}
+.tool-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;}
+.tool-btn{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 6px;background:#f8fafc;border:2px solid #e2e8f0;border-radius:12px;cursor:pointer;font-weight:700;font-size:12px;color:#475569;gap:4px;transition:all .15s;}
+.tool-btn:hover{background:#f1f5f9;border-color:#c7d2fe;}
+.tool-btn.active{background:#eef2ff;border-color:#6366f1;color:#4338ca;}
+select,input[type=range]{width:100%;display:block;}
+select{padding:9px 12px;border:1.5px solid #e2e8f0;border-radius:10px;background:#f8fafc;font-family:inherit;font-size:13px;font-weight:700;color:#1e293b;outline:none;cursor:pointer;margin-bottom:12px;}
+select:focus{border-color:#6366f1;}
+input[type=range]{accent-color:#6366f1;height:6px;border-radius:8px;cursor:pointer;margin-bottom:4px;}
+.speed-row{display:flex;justify-content:space-between;font-size:11px;color:#94a3b8;margin-bottom:12px;}
+.btn-row{display:flex;gap:8px;}
+.btn{display:flex;align-items:center;justify-content:center;gap:6px;padding:10px 14px;border:none;border-radius:10px;font-family:inherit;font-size:13px;font-weight:800;cursor:pointer;transition:all .15s;flex:1;}
+.btn:disabled{opacity:.45;cursor:not-allowed;}
+.btn-primary{background:#6366f1;color:#fff;}
+.btn-primary:hover:not(:disabled){background:#4f46e5;}
+.btn-success{background:#10b981;color:#fff;}
+.btn-success:hover:not(:disabled){background:#059669;}
+.btn-pause{background:#ef4444;color:#fff;}
+.btn-gray{background:#e2e8f0;color:#475569;}
+.btn-gray:hover:not(:disabled){background:#cbd5e1;}
+.btn-blue{background:#3b82f6;color:#fff;}
+.btn-blue:hover:not(:disabled){background:#2563eb;}
+.status-badge{display:inline-block;padding:5px 14px;border-radius:100px;font-size:12px;font-weight:800;background:#f1f5f9;color:#475569;}
+.status-badge.running{background:#eef2ff;color:#4338ca;}
+.status-badge.done{background:#dcfce7;color:#166534;}
+.status-badge.fail{background:#fee2e2;color:#991b1b;}
+
+/* ── 그리드 미로 ── */
+#grid-wrap{display:flex;justify-content:center;align-items:flex-start;}
+#grid-container{display:grid;gap:2px;background:#e2e8f0;border:2px solid #cbd5e1;border-radius:10px;padding:3px;}
+.grid-cell{width:38px;height:38px;background:#fff;border-radius:4px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;transition:background .1s;}
+.grid-cell:hover{background:#f1f5f9;}
+.cell-wall{background:#475569!important;}
+.cell-start{background:#10b981!important;color:#fff;}
+.cell-end{background:#ef4444!important;color:#fff;}
+.cell-discovered{background:#bae6fd!important;}
+.cell-visited{background:#3b82f6!important;}
+.cell-path{background:#f59e0b!important;}
+
+/* ── 트리 캔버스 ── */
+.tree-wrap{border:2px solid #e2e8f0;border-radius:12px;overflow:hidden;background:#fff;position:relative;}
+#tree-canvas-grid,#tree-canvas-tree{display:block;width:100%;}
+
+/* ── 범례 ── */
+.legend{display:flex;flex-wrap:wrap;gap:10px;font-size:12px;font-weight:700;color:#475569;margin-bottom:12px;}
+.legend-item{display:flex;align-items:center;gap:5px;}
+.legend-dot{width:12px;height:12px;border-radius:3px;flex-shrink:0;}
+
+/* ── 토스트 ── */
+#toast{position:fixed;bottom:32px;left:50%;transform:translateX(-50%) translateY(20px);padding:12px 26px;border-radius:14px;color:#fff;font-weight:800;font-size:14px;box-shadow:0 8px 24px rgba(0,0,0,.18);z-index:9999;opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap;}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+/* ── 트리 탭 ── */
+.tree-info{background:#eff6ff;border-radius:10px;padding:10px 14px;font-size:12.5px;color:#1e40af;font-weight:600;line-height:1.7;margin-top:10px;}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-inner">
+    <div><a class="back-btn" href="ch03-blind.html">← 맹목적 탐색으로 돌아가기</a></div>
+    <span class="hero-tag">인공지능 실습</span>
+    <h1>무정보 탐색 시뮬레이터</h1>
+    <p>트리(Tree)와 2D 미로(Grid)에서 BFS·DFS가 어떻게 동작하는지 비교하며 학습해 보세요.</p>
+  </div>
+</header>
+
+<div class="tab-bar">
+  <div class="tab-inner">
+    <button class="tab-btn active" id="tab-grid" onclick="switchTab('grid')">🗺 2D 미로 탐색</button>
+    <button class="tab-btn" id="tab-tree" onclick="switchTab('tree')">🌐 트리 탐색</button>
+  </div>
+</div>
+
+<main>
+
+<!-- ══ 2D 미로 섹션 ══ -->
+<section id="sec-grid">
+  <div class="card" style="margin-bottom:16px;">
+    <div class="grid-layout">
+
+      <!-- 도구 패널 -->
+      <div>
+        <div class="ctrl-label">✏맵 편집</div>
+        <div class="tool-grid">
+          <button class="tool-btn" data-tool="start" id="tool-start">📍시작점</button>
+          <button class="tool-btn" data-tool="end"   id="tool-end">  🚩도착점</button>
+          <button class="tool-btn active" data-tool="wall" id="tool-wall">■벽</button>
+          <button class="tool-btn" data-tool="eraser" id="tool-eraser">✏지우개</button>
+        </div>
+        <div class="ctrl-label">⚙알고리즘</div>
+        <select id="grid-algo"><option value="bfs">BFS (너비 우선)</option><option value="dfs">DFS (깊이 우선)</option></select>
+        <div class="ctrl-label">⏱탐색 속도</div>
+        <input type="range" id="grid-speed" min="50" max="1000" value="500">
+        <div class="speed-row"><span>느림</span><span>빠름</span></div>
+        <div class="btn-row" style="margin-bottom:8px;">
+          <button class="btn btn-primary" id="grid-play-btn" onclick="gridTogglePlay()">▶자동</button>
+          <button class="btn btn-success" onclick="gridStep()">⏭단계</button>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-gray" onclick="gridReset()">↺리셋</button>
+          <button class="btn btn-gray" onclick="gridClearWalls()">🧹초기화</button>
+        </div>
+        <div style="margin-top:10px;text-align:center;"><span class="status-badge" id="grid-status">대기 중</span></div>
+      </div>
+
+      <!-- 미로 -->
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div class="legend">
+          <div class="legend-item"><div class="legend-dot" style="background:#10b981"></div>시작</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#ef4444"></div>도착</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#475569"></div>벽</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#bae6fd"></div>발견</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#3b82f6"></div>방문</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#f59e0b"></div>경로</div>
+        </div>
+        <div id="grid-wrap"><div id="grid-container"></div></div>
+      </div>
+
+      <!-- 탐색 트리 -->
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <span style="font-size:13px;font-weight:800;color:#1e293b;">🌐 탐색 트리 구조</span>
+          <div style="display:flex;gap:4px;">
+            <button onclick="setGridCam('fit')" id="gcam-fit" style="padding:4px 10px;border-radius:8px;border:1.5px solid #6366f1;background:#eef2ff;color:#4338ca;font-size:11px;font-weight:800;cursor:pointer;">전체</button>
+            <button onclick="setGridCam('track')" id="gcam-track" style="padding:4px 10px;border-radius:8px;border:1.5px solid #e2e8f0;background:#f8fafc;color:#64748b;font-size:11px;font-weight:800;cursor:pointer;">추적</button>
+          </div>
+        </div>
+        <div class="tree-wrap" style="height:430px;">
+          <canvas id="tree-canvas-grid"></canvas>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ══ 트리 탐색 섹션 ══ -->
+<section id="sec-tree" class="hidden">
+  <div class="card">
+    <div class="tree-layout">
+
+      <!-- 설정 패널 -->
+      <div>
+        <div class="ctrl-label">🌲트리 생성</div>
+        <label style="font-size:12px;font-weight:700;color:#64748b;display:block;margin-bottom:4px;">최대 깊이</label>
+        <input type="number" id="tree-depth" min="2" max="5" value="3" style="width:100%;padding:8px;border:1.5px solid #e2e8f0;border-radius:8px;font-family:inherit;font-size:13px;font-weight:700;margin-bottom:10px;">
+        <label style="font-size:12px;font-weight:700;color:#64748b;display:block;margin-bottom:4px;">최대 자식 수</label>
+        <input type="number" id="tree-children" min="1" max="4" value="2" style="width:100%;padding:8px;border:1.5px solid #e2e8f0;border-radius:8px;font-family:inherit;font-size:13px;font-weight:700;margin-bottom:10px;">
+        <button class="btn btn-blue" style="width:100%;margin-bottom:16px;" onclick="genTree()">🌲트리 생성</button>
+
+        <div class="ctrl-label">⚙알고리즘</div>
+        <select id="tree-algo" onchange="treeReset()"><option value="bfs">BFS (너비 우선)</option><option value="dfs">DFS (깊이 우선)</option></select>
+        <div class="ctrl-label">⏱탐색 속도</div>
+        <input type="range" id="tree-speed" min="50" max="1000" value="500">
+        <div class="speed-row"><span>느림</span><span>빠름</span></div>
+        <div class="btn-row" style="margin-bottom:8px;">
+          <button class="btn btn-primary" id="tree-play-btn" onclick="treeTogglePlay()">▶자동</button>
+          <button class="btn btn-success" onclick="treeStep()">⏭단계</button>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-gray" onclick="treeReset()">↺리셋</button>
+        </div>
+        <div style="margin-top:10px;text-align:center;"><span class="status-badge" id="tree-status">대기 중</span></div>
+        <div class="tree-info">
+          💡 트리 캔버스에서 노드를 클릭하여 <strong>목표(Goal)</strong>를 지정할 수 있습니다.
+        </div>
+      </div>
+
+      <!-- 트리 캔버스 -->
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div class="legend">
+          <div class="legend-item"><div class="legend-dot" style="background:#6366f1;border-radius:50%"></div>미탐색</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#eab308;border-radius:50%"></div>현재</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#94a3b8;border-radius:50%"></div>탐색 완료</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#ef4444;border-radius:50%"></div>목표</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#22c55e;border-radius:50%"></div>발견!</div>
+        </div>
+        <div class="tree-wrap" style="height:520px;">
+          <canvas id="tree-canvas-tree"></canvas>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+</main>
+
+<div id="toast"></div>
+
+<script>
+/* ══════════════════════════════════════════
+   공통 유틸리티
+══════════════════════════════════════════ */
+let _toastTimer = null;
+function showToast(msg, type='info'){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.background = type==='success'?'#16a34a':type==='error'?'#dc2626':'#1e293b';
+  t.classList.remove('show');
+  requestAnimationFrame(()=>t.classList.add('show'));
+  if(_toastTimer) clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(()=>t.classList.remove('show'), 2600);
+}
+function switchTab(tab){
+  document.getElementById('sec-grid').classList.toggle('hidden', tab!=='grid');
+  document.getElementById('sec-tree').classList.toggle('hidden', tab!=='tree');
+  document.getElementById('tab-grid').classList.toggle('active', tab==='grid');
+  document.getElementById('tab-tree').classList.toggle('active', tab==='tree');
+  if(tab==='tree' && treeNodes.length===0) genTree();
+}
+
+/* ══════════════════════════════════════════
+   Canvas 트리 렌더러 (vis-network 대체)
+══════════════════════════════════════════ */
+class TreeCanvas {
+  constructor(canvasId){
+    this.cv = document.getElementById(canvasId);
+    this.ctx = this.cv.getContext('2d');
+    this.nodes = []; // {id, x, y, label, color, border}
+    this.edges = []; // {from, to}
+    this.camX=0; this.camY=0; this.scale=1;
+    this._drag=false; this._lx=0; this._ly=0;
+    this._initEvents();
+    this._resize();
+    window.addEventListener('resize', ()=>this._resize());
+  }
+  _resize(){
+    const wrap = this.cv.parentElement;
+    this.cv.width  = wrap.clientWidth  || 500;
+    this.cv.height = wrap.clientHeight || 420;
+    this.draw();
+  }
+  _initEvents(){
+    this.cv.addEventListener('mousedown', e=>{ this._drag=true; this._lx=e.clientX; this._ly=e.clientY; });
+    this.cv.addEventListener('mousemove', e=>{
+      if(!this._drag) return;
+      this.camX += e.clientX-this._lx; this.camY += e.clientY-this._ly;
+      this._lx=e.clientX; this._ly=e.clientY; this.draw();
+    });
+    this.cv.addEventListener('mouseup',   ()=>this._drag=false);
+    this.cv.addEventListener('mouseleave',()=>this._drag=false);
+    this.cv.addEventListener('wheel', e=>{
+      e.preventDefault();
+      const f = e.deltaY<0?1.12:0.9;
+      const rect=this.cv.getBoundingClientRect();
+      const mx=e.clientX-rect.left, my=e.clientY-rect.top;
+      this.camX = mx - (mx-this.camX)*f;
+      this.camY = my - (my-this.camY)*f;
+      this.scale *= f; this.draw();
+    },{passive:false});
+  }
+  clear(){ this.nodes=[]; this.edges=[]; this.camX=0; this.camY=0; this.scale=1; this.draw(); }
+  setData(nodes, edges){ this.nodes=nodes; this.edges=edges; this.fitAll(); }
+  updateNode(id, props){ const n=this.nodes.find(n=>n.id===id); if(n) Object.assign(n,props); this.draw(); }
+  fitAll(){
+    if(!this.nodes.length) return;
+    const xs=this.nodes.map(n=>n.x), ys=this.nodes.map(n=>n.y);
+    const minX=Math.min(...xs), maxX=Math.max(...xs), minY=Math.min(...ys), maxY=Math.max(...ys);
+    const W=this.cv.width, H=this.cv.height;
+    const pad=48;
+    const sx=(W-pad*2)/(maxX-minX||1), sy=(H-pad*2)/(maxY-minY||1);
+    this.scale=Math.min(sx,sy,1.6);
+    this.camX = W/2 - (minX+maxX)/2*this.scale;
+    this.camY = pad - minY*this.scale;
+    this.draw();
+  }
+  draw(){
+    const {ctx,cv,scale,camX,camY}=this;
+    ctx.clearRect(0,0,cv.width,cv.height);
+    ctx.save(); ctx.translate(camX,camY); ctx.scale(scale,scale);
+    // edges
+    this.edges.forEach(e=>{
+      const a=this.nodes.find(n=>n.id===e.from), b=this.nodes.find(n=>n.id===e.to);
+      if(!a||!b) return;
+      ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y);
+      ctx.strokeStyle='#cbd5e1'; ctx.lineWidth=2/scale; ctx.stroke();
+    });
+    // nodes
+    const R=22;
+    this.nodes.forEach(n=>{
+      ctx.beginPath(); ctx.arc(n.x,n.y,R,0,Math.PI*2);
+      ctx.fillStyle=n.color||'#6366f1'; ctx.fill();
+      ctx.strokeStyle=n.border||'#4f46e5'; ctx.lineWidth=2.5/scale; ctx.stroke();
+      ctx.fillStyle=n.textColor||'#fff';
+      ctx.font=`bold ${14/scale}px Pretendard,sans-serif`;
+      ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillText(String(n.label),n.x,n.y);
+    });
+    ctx.restore();
+  }
+  // 클릭한 노드 id 반환
+  hitTest(ex, ey){
+    const rect=this.cv.getBoundingClientRect();
+    const mx=(ex-rect.left-this.camX)/this.scale, my=(ey-rect.top-this.camY)/this.scale;
+    const R=22;
+    for(const n of this.nodes) if(Math.hypot(n.x-mx,n.y-my)<R+4) return n.id;
+    return null;
+  }
+}
+
+/* ── 계층적 레이아웃 계산 ── */
+function layoutTree(adj, rootId){
+  // BFS로 레벨 계산
+  const level={}, children={};
+  const queue=[rootId]; level[rootId]=0;
+  const order=[];
+  while(queue.length){
+    const n=queue.shift(); order.push(n);
+    children[n]=adj[n]||[];
+    children[n].forEach(c=>{ if(level[c]===undefined){ level[c]=level[n]+1; queue.push(c); } });
+  }
+  // 각 레벨 노드 수집
+  const byLevel={};
+  order.forEach(n=>{ (byLevel[level[n]]||(byLevel[level[n]]=[])).push(n); });
+  const positions={};
+  const HGAP=70, VGAP=90;
+  Object.entries(byLevel).forEach(([lv,nodes])=>{
+    const total=(nodes.length-1)*HGAP;
+    nodes.forEach((n,i)=>{ positions[n]={x:i*HGAP-total/2, y:parseInt(lv)*VGAP}; });
+  });
+  return positions;
+}
+
+/* ══════════════════════════════════════════
+   2D 미로 탐색 (Grid)
+══════════════════════════════════════════ */
+const ROWS=10, COLS=10;
+let gridCells=[], gridState=[];
+let gridStart={r:1,c:1}, gridEnd={r:8,c:8};
+let currentTool='wall', isDrawing=false;
+let gridGen=null, gridPlaying=false, gridTimer=null;
+let gridCam='fit';
+
+const gridTC = new TreeCanvas('tree-canvas-grid');
+
+function initGrid(){
+  const cont=document.getElementById('grid-container');
+  cont.style.gridTemplateColumns=`repeat(${COLS},38px)`;
+  cont.style.gridTemplateRows=`repeat(${ROWS},38px)`;
+  cont.innerHTML=''; gridCells=[]; gridState=[];
+  for(let r=0;r<ROWS;r++){
+    const rC=[],rS=[];
+    for(let c=0;c<COLS;c++){
+      const cell=document.createElement('div');
+      cell.className='grid-cell'; cell.dataset.r=r; cell.dataset.c=c;
+      cell.addEventListener('mousedown',e=>{isDrawing=true;applyTool(e.currentTarget);});
+      cell.addEventListener('mouseenter',e=>{if(!isDrawing)return;if(currentTool==='start'||currentTool==='end')return;applyTool(e.currentTarget);});
+      cont.appendChild(cell); rC.push(cell); rS.push(0);
+    }
+    gridCells.push(rC); gridState.push(rS);
+  }
+  document.onmouseup=()=>isDrawing=false;
+  // 도구 버튼
+  document.querySelectorAll('.tool-btn').forEach(b=>{
+    b.addEventListener('click',e=>{
+      document.querySelectorAll('.tool-btn').forEach(x=>x.classList.remove('active'));
+      e.currentTarget.classList.add('active');
+      currentTool=e.currentTarget.dataset.tool;
+    });
+  });
+  gridUpdateVisuals();
+  gridTC._resize();
+}
+
+function applyTool(cell){
+  gridClearSearch();
+  const r=+cell.dataset.r, c=+cell.dataset.c;
+  if(currentTool==='start'){if(r===gridEnd.r&&c===gridEnd.c)return;gridStart={r,c};gridState[r][c]=0;}
+  else if(currentTool==='end'){if(r===gridStart.r&&c===gridStart.c)return;gridEnd={r,c};gridState[r][c]=0;}
+  else if(currentTool==='wall'){if((r===gridStart.r&&c===gridStart.c)||(r===gridEnd.r&&c===gridEnd.c))return;gridState[r][c]=1;}
+  else if(currentTool==='eraser'){gridState[r][c]=0;}
+  gridUpdateVisuals();
+}
+
+function gridUpdateVisuals(){
+  for(let r=0;r<ROWS;r++) for(let c=0;c<COLS;c++){
+    const cell=gridCells[r][c]; cell.className='grid-cell'; cell.innerHTML='';
+    if(r===gridStart.r&&c===gridStart.c){cell.classList.add('cell-start');cell.innerHTML='●';}
+    else if(r===gridEnd.r&&c===gridEnd.c){cell.classList.add('cell-end');cell.innerHTML='⚑';}
+    else if(gridState[r][c]===1) cell.classList.add('cell-wall');
+  }
+}
+
+function gridClearSearch(){
+  if(gridPlaying) gridStopPlay();
+  gridGen=null; gridPlaying=false;
+  for(let r=0;r<ROWS;r++) for(let c=0;c<COLS;c++){
+    gridCells[r][c].classList.remove('cell-discovered','cell-visited','cell-path');
+    const isS=(r===gridStart.r&&c===gridStart.c), isE=(r===gridEnd.r&&c===gridEnd.c);
+    if(!isS&&!isE) gridCells[r][c].innerHTML='';
+  }
+  gridTC.clear();
+  setStatus('grid-status','대기 중','');
+}
+
+function gridReset(){ gridClearSearch(); }
+function gridClearWalls(){
+  gridClearSearch();
+  for(let r=0;r<ROWS;r++) for(let c=0;c<COLS;c++) gridState[r][c]=0;
+  gridUpdateVisuals();
+}
+
+function* makeGridGen(algo){
+  let tid=0;
+  const isBFS=algo==='bfs';
+  const visited=Array(ROWS).fill(0).map(()=>Array(COLS).fill(false));
+  const inStack=Array(ROWS).fill(0).map(()=>Array(COLS).fill(false));
+  const parent=Array(ROWS).fill(0).map(()=>Array(COLS).fill(null));
+  const dr=[-1,0,1,0],dc=[0,1,0,-1];
+  const startId=tid++;
+  const q=[{r:gridStart.r,c:gridStart.c,tid:startId,ptid:null}];
+  if(isBFS) visited[gridStart.r][gridStart.c]=true;
+  else inStack[gridStart.r][gridStart.c]=true;
+  yield {type:'node',r:gridStart.r,c:gridStart.c,tid:startId,ptid:null,label:'S',col:'#10b981'};
+  let found=false;
+  while(q.length){
+    const cur=isBFS?q.shift():q.pop();
+    if(!isBFS){
+      if(visited[cur.r][cur.c]) continue;
+      visited[cur.r][cur.c]=true;
+      if(cur.ptid!==null) parent[cur.r][cur.c]={r:cur.pr,c:cur.pc};
+    }
+    yield {type:'visit',r:cur.r,c:cur.c,tid:cur.tid};
+    if(cur.r===gridEnd.r&&cur.c===gridEnd.c){found=true;break;}
+    const order=isBFS?[0,1,2,3]:[3,2,1,0];
+    for(const i of order){
+      const nr=cur.r+dr[i],nc=cur.c+dc[i];
+      if(nr<0||nr>=ROWS||nc<0||nc>=COLS||gridState[nr][nc]===1) continue;
+      if(isBFS&&visited[nr][nc]) continue;
+      if(!isBFS&&(inStack[nr][nc]||visited[nr][nc])) continue;
+      const nid=tid++;
+      if(!isBFS) inStack[nr][nc]=true;
+      else {visited[nr][nc]=true; parent[nr][nc]={r:cur.r,c:cur.c};}
+      const lbl=(nr===gridEnd.r&&nc===gridEnd.c)?'E':`${nr},${nc}`;
+      yield {type:'node',r:nr,c:nc,tid:nid,ptid:cur.tid,pr:cur.r,pc:cur.c,label:lbl,col:'#bae6fd'};
+      q.push({r:nr,c:nc,tid:nid,ptid:cur.tid,pr:cur.r,pc:cur.c});
+    }
+  }
+  if(found){
+    let p=[], cur={r:gridEnd.r,c:gridEnd.c};
+    while(cur){p.push(cur);const x=parent[cur.r][cur.c];cur=x?{r:x.r,c:x.c}:null;}
+    p.reverse();
+    for(const n of p) yield {type:'path',r:n.r,c:n.c};
+    return true;
+  }
+  return false;
+}
+
+// 그리드 트리 노드 리스트 (Canvas용)
+let gtNodes=[], gtEdges=[], gtAdj={};
+
+function gridProcessStep(){
+  if(!gridGen){ gridGen=makeGridGen(document.getElementById('grid-algo').value); gtNodes=[]; gtEdges=[]; gtAdj={}; gridPlaying=true; setStatus('grid-status','탐색 중...','running'); }
+  const res=gridGen.next();
+  if(res.done){
+    gridStopPlay(); gridPlaying=false;
+    setStatus('grid-status', res.value?'목표 도달! 🎉':'경로 없음', res.value?'done':'fail');
+    if(res.value) showToast('경로를 찾았습니다!','success');
+    else showToast('경로를 찾지 못했습니다.','error');
+    return;
+  }
+  const {type,r,c,tid,ptid,label,col}=res.value;
+  const isS=(r===gridStart.r&&c===gridStart.c), isE=(r===gridEnd.r&&c===gridEnd.c);
+  if(type==='node'){
+    if(!isS&&!isE) gridCells[r][c].classList.add('cell-discovered');
+    const pos=computeGridNodePos(tid,ptid);
+    gtNodes.push({id:tid,x:pos.x,y:pos.y,label,color:col==='#bae6fd'?'#38bdf8':col,border:'#0284c7',textColor:col==='#10b981'?'#fff':'#0f172a'});
+    if(ptid!==null) gtEdges.push({from:ptid,to:tid});
+    gtAdj[ptid]=(gtAdj[ptid]||0)+1;
+    gridTC.setData(gtNodes,gtEdges);
+    if(gridCam==='track') gridTC.scale=1; // handled in fitAll
+  } else if(type==='visit'){
+    if(!isS&&!isE) gridCells[r][c].classList.add('cell-visited');
+    const n=gtNodes.find(n=>n.id===tid);
+    if(n){n.color='#3b82f6';n.border='#1d4ed8';n.textColor='#fff';gridTC.draw();}
+  } else if(type==='path'){
+    if(!isS&&!isE){gridCells[r][c].classList.add('cell-path');gridCells[r][c].innerHTML='★';}
+    const n=gtNodes.find(n=>n.label===`${r},${c}`||(r===gridEnd.r&&c===gridEnd.c&&n.label==='E')||(r===gridStart.r&&c===gridStart.c&&n.label==='S'));
+    if(n){n.color='#f59e0b';n.border='#b45309';n.textColor='#fff';gridTC.draw();}
+  }
+}
+
+// 트리 노드 위치: 간단한 레벨+sibling 배치
+let _gtLevel={}, _gtSibIdx={};
+function computeGridNodePos(tid,ptid){
+  if(ptid===null){ _gtLevel[tid]=0; _gtSibIdx[tid]=0; return {x:0,y:0}; }
+  const lv=(_gtLevel[ptid]||0)+1; _gtLevel[tid]=lv;
+  const sibCount=gtAdj[ptid]||0;
+  const idx=sibCount;
+  const H=72, W=60;
+  const parentNode=gtNodes.find(n=>n.id===ptid);
+  const px=parentNode?parentNode.x:0;
+  const x=px+(idx)*W - (gtAdj[ptid]||0)*W/2;
+  return {x, y:lv*H};
+}
+
+function setGridCam(mode){
+  gridCam=mode;
+  if(mode==='fit') gridTC.fitAll();
+}
+
+function gridStep(){
+  if(gridPlaying&&gridTimer){ gridStopPlay(); return; }
+  gridProcessStep();
+}
+function gridTogglePlay(){
+  if(gridPlaying&&gridTimer){ gridStopPlay(); return; }
+  if(!gridPlaying&&gridGen&&gridGen.next===undefined) return;
+  const btn=document.getElementById('grid-play-btn');
+  btn.innerHTML='⏸일시정지';
+  btn.classList.add('btn-pause'); btn.classList.remove('btn-primary');
+  function loop(){
+    gridProcessStep();
+    if(gridPlaying&&gridGen){
+      const spd=1000-parseInt(document.getElementById('grid-speed').value)+50;
+      gridTimer=setTimeout(loop,spd);
+    }
+  }
+  loop();
+}
+function gridStopPlay(){
+  clearTimeout(gridTimer); gridTimer=null;
+  const btn=document.getElementById('grid-play-btn');
+  btn.innerHTML='▶자동';
+  btn.classList.remove('btn-pause'); btn.classList.add('btn-primary');
+}
+function setStatus(id,text,cls){
+  const el=document.getElementById(id);
+  el.textContent=text;
+  el.className='status-badge'+(cls?' '+cls:'');
+}
+
+/* ══════════════════════════════════════════
+   트리 탐색 (Tree)
+══════════════════════════════════════════ */
+let treeNodes=[], treeEdges=[], treeAdj={};
+let treeGoal=null, treeSearchSt=null, treePlaying=false, treeTimer=null;
+const treeTC = new TreeCanvas('tree-canvas-tree');
+
+treeTC.cv.addEventListener('click', e=>{
+  const id=treeTC.hitTest(e.clientX,e.clientY);
+  if(id!==null){
+    if(treeSearchSt&&treeSearchSt.status!=='idle'){showToast('탐색 중에는 변경할 수 없습니다.','error');return;}
+    setTreeGoal(id);
+  }
+});
+
+function genTree(){
+  treeReset();
+  const maxD=Math.min(Math.max(parseInt(document.getElementById('tree-depth').value)||3,2),5);
+  const maxC=Math.min(Math.max(parseInt(document.getElementById('tree-children').value)||2,1),4);
+  let id=1; treeNodes=[]; treeEdges=[]; treeAdj={};
+  treeNodes.push({id:1,label:'1',color:'#6366f1',border:'#4338ca',textColor:'#fff'});
+  treeAdj[1]=[];
+  function build(pid,depth){
+    if(depth>maxD||id>=120) return;
+    const nc=Math.floor(Math.random()*maxC)+1;
+    for(let i=0;i<nc;i++){
+      if(id>=120) return;
+      id++;
+      treeNodes.push({id,label:String(id),color:'#6366f1',border:'#4338ca',textColor:'#fff'});
+      treeEdges.push({from:pid,to:id});
+      treeAdj[pid].push(id); treeAdj[id]=[];
+      build(id,depth+1);
+    }
+  }
+  build(1,1);
+  // 레이아웃 계산
+  const adj={}; treeNodes.forEach(n=>adj[n.id]=treeAdj[n.id]||[]);
+  const pos=layoutTree(adj,1);
+  treeNodes.forEach(n=>{ n.x=pos[n.id]?.x||0; n.y=pos[n.id]?.y||0; });
+  // 목표 랜덤 설정
+  const ids=treeNodes.map(n=>n.id);
+  setTreeGoal(ids[Math.floor(Math.random()*(ids.length-1))+1]);
+  treeTC.setData([...treeNodes],[...treeEdges]);
+}
+
+function setTreeGoal(id){
+  if(treeGoal!==null){
+    const old=treeNodes.find(n=>n.id===treeGoal);
+    if(old){old.color='#6366f1';old.border='#4338ca';}
+  }
+  treeGoal=id;
+  const n=treeNodes.find(n=>n.id===id);
+  if(n){n.color='#ef4444';n.border='#b91c1c';}
+  treeTC.draw();
+  showToast(`노드 [${id}]가 목표로 지정되었습니다.`,'success');
+}
+
+function treeInitSearch(){
+  const algo=document.getElementById('tree-algo').value;
+  treeSearchSt={algo,ds:[1],visited:new Set([1]),status:'running',cur:null};
+  setStatus('tree-status','탐색 중...','running');
+}
+
+function treeStepCore(){
+  if(!treeSearchSt) treeInitSearch();
+  if(treeSearchSt.status!=='running') return false;
+  const st=treeSearchSt;
+  if(st.cur!==null&&st.cur!==treeGoal){
+    const n=treeNodes.find(n=>n.id===st.cur);
+    if(n){n.color='#94a3b8';n.border='#64748b';n.textColor='#fff';}
+  }
+  if(!st.ds.length){
+    st.status='done';
+    setStatus('tree-status','목표를 찾지 못했습니다.','fail');
+    showToast('모든 노드를 탐색했습니다.','error');
+    treeTC.draw(); return false;
+  }
+  const cur=st.algo==='bfs'?st.ds.shift():st.ds.pop();
+  st.cur=cur;
+  if(cur===treeGoal){
+    st.status='done';
+    setStatus('tree-status','🎉 목표 발견!','done');
+    const n=treeNodes.find(n=>n.id===cur);
+    if(n){n.color='#22c55e';n.border='#15803d';}
+    showToast(`목표 노드 [${cur}]를 찾았습니다!`,'success');
+    treeTC.draw(); return false;
+  }
+  const n=treeNodes.find(n=>n.id===cur);
+  if(n){n.color='#eab308';n.border='#a16207';}
+  const ch=treeAdj[cur]||[];
+  const order=st.algo==='dfs'?[...ch].reverse():ch;
+  order.forEach(c=>{ if(!st.visited.has(c)){st.visited.add(c);st.ds.push(c);} });
+  treeTC.draw(); return true;
+}
+
+function treeStep(){ if(treePlaying) treeStopPlay(); treeStepCore(); }
+function treeTogglePlay(){ treePlaying?treeStopPlay():treeStartPlay(); }
+function treeStartPlay(){
+  if(treeSearchSt&&treeSearchSt.status==='done') treeReset();
+  treePlaying=true;
+  const btn=document.getElementById('tree-play-btn');
+  btn.innerHTML='⏸일시정지';
+  btn.classList.add('btn-pause'); btn.classList.remove('btn-primary');
+  function loop(){
+    const has=treeStepCore();
+    if(has&&treePlaying){
+      const spd=1000-parseInt(document.getElementById('tree-speed').value)+50;
+      treeTimer=setTimeout(loop,spd);
+    } else treeStopPlay();
+  }
+  loop();
+}
+function treeStopPlay(){
+  treePlaying=false; clearTimeout(treeTimer);
+  const btn=document.getElementById('tree-play-btn');
+  btn.innerHTML='▶자동';
+  btn.classList.remove('btn-pause'); btn.classList.add('btn-primary');
+}
+function treeReset(){
+  treeStopPlay(); treeSearchSt=null;
+  setStatus('tree-status','대기 중','');
+  treeNodes.forEach(n=>{
+    n.color=n.id===treeGoal?'#ef4444':'#6366f1';
+    n.border=n.id===treeGoal?'#b91c1c':'#4338ca';
+    n.textColor='#fff';
+  });
+  treeTC.draw();
+}
+
+/* ══════════════════════════════════════════
+   초기화
+══════════════════════════════════════════ */
+window.onload = ()=>{ initGrid(); };
+</script>
+</body>
+</html>
